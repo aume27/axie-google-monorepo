@@ -8,7 +8,7 @@ This  Google Spreadsheet project was made using:
   - [Axie spreadsheet utils for google Sheets - libGSheet-Axie-Utils](https://script.google.com/d/1HspaDDZnWRfyPKZBRqIehbwHFu_5ZJgbsKkl2HM4UUeVzHS4twGU61n_/edit?usp=sharing)
 
 It allows to create list of axie breeding pairs, see and search trough you axie inventory. \
-See guide in the spreadsheet projects it self. \
+See guide in the spreadsheet projects it self.
 
 ---
 #### Credits
@@ -26,4 +26,4 @@ See guide in the spreadsheet projects it self. \
   - For comment about the code please add the line you're referring to.
   - Your support is greatly appreciated. \
   		BTC:	1G2bT7cqqi1hVRn2HQ2yackqHy5aZFLboG \
-  		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27 \
+  		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27
