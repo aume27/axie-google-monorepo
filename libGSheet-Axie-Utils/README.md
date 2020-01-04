@@ -27,7 +27,7 @@ It allows to retrieve data from Axie infinity directly to your spreadsheet using
 First install the script as a library or make a copy of the script project.
 
 ##### As a library
-1. In your googleAppScript editor, click on the menu Resources > Libraries. \
+1. In your googleAppScript editor, click on the menu Resources > Libraries.
 2. In the text field at the bottom of the box, enter the script ID, \
 `1XQhNeKBi0ONR7_0iVM94DlQzi1Hwh8wvB_zCJxrnyiphMY_3AjudC6Qi`(this script id) \
 and click the "Select" button.
