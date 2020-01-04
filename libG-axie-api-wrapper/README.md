@@ -66,4 +66,4 @@ Guillaume MD \
 - For comment about the code please add the line you're referring to.
 - Your support is greatly appreciated. \
 		BTC:	1G2bT7cqqi1hVRn2HQ2yackqHy5aZFLboG \
-		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27 \
+		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27
