@@ -7,7 +7,7 @@ This library was made using: \
 It allows to communicate with Axie Infinity from Google services like google sites, \
 docs and sheets and provide the core functions to retrieve data. \
 It does not format the response for a specified service, this requires you to \
-build a custom function in addition. There is examples available here: [axie-spreadsheet-utils](../libGSheet-Axie-Utils/README.md).
+build a custom function in addition. There is examples available here: [libGSheet-Axie-Utils](../libGSheet-Axie-Utils/README.md).
 
 ---
 
