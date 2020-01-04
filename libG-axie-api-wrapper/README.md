@@ -1,9 +1,9 @@
 # [Axie public api wrapper for googleAppScript - libG-axie-api-wrapper](https://script.google.com/d/1XQhNeKBi0ONR7_0iVM94DlQzi1Hwh8wvB_zCJxrnyiphMY_3AjudC6Qi/edit?usp=sharing)
 ---
 This library was made using: \
-  - [Google App Script(GAS)](https://developers.google.com/apps-script/) \
-  - [![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp) \
-  - [:atom: Atom - Code editor](https://github.com/atom/atom) \
+  - [Google App Script(GAS)](https://developers.google.com/apps-script/)
+  - [![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp)
+  - [:atom: Atom - Code editor](https://github.com/atom/atom) 
 It allows to communicate with Axie Infinity from Google services like google sites, \
 docs and sheets and provide the core functions to retrieve data. \
 It does not format the response for a specified service, this requires you to \

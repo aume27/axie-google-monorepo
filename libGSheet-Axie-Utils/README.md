@@ -1,9 +1,9 @@
 # [Axie spreadsheet utils for google Sheets - libGSheet-Axie-Utils](https://script.google.com/d/1HspaDDZnWRfyPKZBRqIehbwHFu_5ZJgbsKkl2HM4UUeVzHS4twGU61n_/edit?usp=sharing)
 ---
-This library was made using: \
-  - [Google App Script(GAS)](https://developers.google.com/apps-script/) \
-  - [![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp) \
-  - [:atom: Atom - Code editor](https://github.com/atom/atom) \
+This library was made using:
+  - [Google App Script(GAS)](https://developers.google.com/apps-script/)
+  - [![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp)
+  - [:atom: Atom - Code editor](https://github.com/atom/atom) 
 It allows to retrieve data from Axie infinity directly to your spreadsheet using the [libG-axie-api-wrapper](../libG-axie-api-wrapper/README.md)  . \
 
 ---
