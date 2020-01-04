@@ -1,0 +1,6 @@
+.clasp.json
+.claspignore
+other/
+backup/
+*/other/
+*/img/

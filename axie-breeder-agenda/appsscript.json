@@ -1,0 +1,11 @@
+{
+  "timeZone": "America/New_York",
+  "dependencies": {
+    "libraries": [{
+      "userSymbol": "Ai",
+      "libraryId": "1XQhNeKBi0ONR7_0iVM94DlQzi1Hwh8wvB_zCJxrnyiphMY_3AjudC6Qi",
+      "version": "11"
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER"
+}
