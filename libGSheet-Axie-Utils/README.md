@@ -5,7 +5,7 @@ This library was made using:
   - [![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp)
   - [:atom: Atom - Code editor](https://github.com/atom/atom)
 
-It allows to retrieve data from Axie infinity directly to your spreadsheet using the [libG-axie-api-wrapper](../libG-axie-api-wrapper/README.md)  . \
+It allows to retrieve data from Axie infinity directly to your spreadsheet using the [libG-axie-api-wrapper](../libG-axie-api-wrapper/README.md).
 
 ---
 ### Google app script details:
@@ -61,4 +61,4 @@ Guillaume MD \
 - For comment about the code please add the line you're referring to.
 - Your support is greatly appreciated. \
 		BTC:	1G2bT7cqqi1hVRn2HQ2yackqHy5aZFLboG \
-		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27 \
+		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27
