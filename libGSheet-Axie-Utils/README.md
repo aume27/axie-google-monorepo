@@ -10,9 +10,8 @@ It allows to retrieve data from Axie infinity directly to your spreadsheet using
 ---
 ## Setup
 ##### Copy to your spreasheet project script
-Open the project in google app script. \
 Copy the content of the script in your own Google Sheet project. \
-https://script.google.com/d/1XQhNeKBi0ONR7_0iVM94DlQzi1Hwh8wvB_zCJxrnyiphMY_3AjudC6Qi/edit?usp=sharing \
+[Code is here - in index.js](index.js) \
 *(your copy will not be touched by changes made on the original library. \
 It will be necessary to make a new copy of it if you want to update to the latest version.)*
 
