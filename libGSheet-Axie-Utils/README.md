@@ -15,6 +15,10 @@ Copy the content of the script in your own Google Sheet project. \
 *(your copy will not be touched by changes made on the original library. \
 It will be necessary to make a new copy of it if you want to update to the latest version.)*
 
+---
+## Usage
+After copying the code in your project, go to to you spreadsheet and entre in any cell `=axie`. \
+You should see a list of functions in the auto-completion window including description and usage of each functions.
 
 ---
 #### Credits
