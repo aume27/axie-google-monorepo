@@ -2,16 +2,12 @@
 This script as been compressed in a one-pager for easy copy.
 It contain tree files:
  - core-sheet-utils
- = libG-axie-api-wrapper
+ - libG-axie-api-wrapper
  - anons function
  - templates
 
 Instructions:
-- There is two ways of using a library in google
-  1. copy paste it in your project.
-  2. use the script id in the library project properties. For more info visit https://developers.google.com/apps-script/guides/libraries.
-     The actual library script id is: 1HspaDDZnWRfyPKZBRqIehbwHFu_5ZJgbsKkl2HM4UUeVzHS4twGU61n_
-     
+- copy paste it in your project.
      
 Credits:
   - @27aume, Author.
@@ -72,7 +68,8 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 var div = 1000000000000000000;
 
 //Set all functions to display header. to disable change it for false.
-var showHead = true;
+var showHead = true,
+    timeZone = Session.getScriptTimeZone();
 
 
 
