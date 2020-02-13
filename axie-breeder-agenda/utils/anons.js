@@ -15,6 +15,7 @@ you see.
 function restParam_(maxParam, args, containerArray) {
   if(args.length >= maxParam) {
     for(var i = maxParam -1; i < args.length; i++) {
+//      Logger.log(args[i])
       containerArray.push(args[i]);
     };
     
@@ -35,6 +36,7 @@ function pagination_(source, p, arrayId, totalId, offset, modifier, maxItem) {
   (tested up to 2414 items, took very long to run and doesnt work from spreadsheet 
   but in script it works.)*/
   Logger.log("%s Items will be processed or less.", maxItem);
+//  Logger.log(response[arrayId]);
   
   function processItems(response, arrayId, modifier, containerArray, itemLimit){
     for(var i = 0; i < response[arrayId].length; i++) {
@@ -75,45 +77,4 @@ function pagination_(source, p, arrayId, totalId, offset, modifier, maxItem) {
     Logger.log("Finished pagination.");
   }
   return arr;
-};
-
-
-
-/** https://stackoverflow.com/a/48046426/9588601
- * Takes a 2D array with element arrays with differing lengths
- * and adds empty string elements as necessary to return 
- * a 2D array with all element arrays of equal length.
- * @param {array} ar
- * @return {array}
- */
-function symmetric2DArray_(ar){
-  var maxLength;
-  var symetric = true;
-  if (!Array.isArray(ar)) return [['not an array']];
-  ar.forEach( function(row){
-    if (!Array.isArray(row)) return [['not a 2D array']];
-    if (maxLength && maxLength !== row.length) {
-      symetric = false;
-      maxLength = (maxLength > row.length) ? maxLength : row.length;
-    } else { maxLength = row.length }
-  });
-  if (!symetric) {
-    ar.map(function(row){
-      while (row.length < maxLength){
-        row.push('');
-      }
-      return row;
-    });
-  }
-  return ar
-}
-
-
-
-function addHeader_(trigger, array, headerTemp) {
-  if(trigger) {
-    array.unshift(headerTemp);
-  };
-  
-  return array;
 };

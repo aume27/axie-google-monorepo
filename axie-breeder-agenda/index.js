@@ -1,8 +1,6 @@
 /************************************************************
-This script id is: 1feobk6QbN4d6XUPDeUpM8B2xceCKo_fJGFuROxGhl4URFIifjeWOn3DZ
-
 References to AxieInfinity.com api and development:
-  -Unofficial API docum_entation:
+  -Unofficial API documentation:
   https://pacxiu.github.io/AxieInfinityAPI
   -Introdution to build mini-game and tools:
   https://medium_.com/@kreatywnikreatywnym/axie-infinity-tutorial-paint-my-axies-vanilla-js-cd70cf8c6adb
@@ -56,12 +54,12 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 var ss = SpreadsheetApp.getActive(),
     sheet = ss.getActiveSheet(),
     cell = sheet.getActiveCell(),
-    managerSht = ss.getSheetByName("Manager"),
-    axieInvSht = ss.getSheetByName("Axie Inventory");
+    managerSht = ss.getSheetByName("Manager");
 
 var rng = { //predefined ranges and settings
   mainAddress: managerSht.getRange("mainEthAddr"),
-  refreshTrigger: managerSht.getRange("refreshTrig")
+  refreshTrigger: managerSht.getRange("refreshTrig"),
+  rowHLTrigger: managerSht.getRange("rowHighlightTrigger")
 }
 
 var defaultProfile = rng.mainAddress.getValue(), //Ethereum address
@@ -74,6 +72,7 @@ var defaultProfile = rng.mainAddress.getValue(), //Ethereum address
 
 function loadPlanData(plan) {
   var planData = plan.getDataRange().getValues(),
+//      planSize = {rows: , cols: },
       head1 = planData.shift(),
       head2 = planData.shift();
   return {data: planData, head1: head1, head2: head2, headLength: 2};
@@ -82,22 +81,26 @@ function loadPlanData(plan) {
 
 // Create new plan sheet (nsht)
 function createPlanSheet(sheetName) {
-  ss.getSheetByName("plan.temp").activate();
-  var nsht = ss.duplicateActiveSheet().activate();
-
-  sheetName = sheetName ? nsht = sheetName : nsht.setName("plan: ADD_NAME_HERE");
-  return nsht;//.getName();
+  //get template
+  var template = ss.getSheetByName("plan.temp") //.activate();
+  //create copy
+  var nsht = template.copyTo(ss);
+  //set sheet name
+  sheetName ? nsht.setName(sheetName) : nsht.setName("plan: ADD_NAME_HERE");
+  return nsht.activate();//.getName();
 };
 
 
 
 // Create new plan sheet (nsht)
 function createHistSheet(sheetName) {
-  ss.getSheetByName("history.temp").activate();
-  var nsht = ss.duplicateActiveSheet().activate();
-
+  //get template
+  var template = ss.getSheetByName("history.temp");
+  //create copy
+  var nsht = template.copyTo(ss);
+  //set sheet name
   sheetName ? nsht.setName(sheetName) : nsht.setName("hist: ADD_NAME_HERE");
-  return nsht;//.getName();
+  return nsht.activate();
 };
 
 
@@ -107,20 +110,38 @@ function createHistSheet(sheetName) {
 //////////////////////////////////Core//////////////////////////////////
 
 // Create a menu in google sheet ui.
-function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('Axie Planner tools')
-      .addItem('Reload plan. (load data)', 'updatePlan')
-      .addItem('Reload all plans.', 'updateAllPlans')
-      .addItem('Scan for babies.(After eggs appear in inventory)', 'scanForBabies')
-      .addItem('Save completed breeds.', 'saveToHistory')
-      .addItem('Create new plan sheet.', 'createPlanSheet')
-      .addItem('Create new history sheet.', 'createHistSheet')
-      .addSeparator()
-      .addItem('Reload axie Inventory.', 'axieInventory')
-      .addItem('Search By name.', 'searchAxiesByName')
-    .addToUi();
+function onOpen(e) {
+  var ui = SpreadsheetApp.getUi();
+  var agendaMenu = ui.createMenu('**Axie agenda tools**'),
+      inventoryMenu = ui.createMenu('**Axie inventory tools**'),
+      extraTools = ui.createMenu('**Extra tools**');
+      
+  agendaMenu
+    .addItem('Update plan. (load data)', 'updatePlan')
+    .addItem('Scan for babies.(After eggs is in inventory)', 'scanForBabies')
+    .addItem('Save completed breeds.', 'saveToHistory')
+    .addSeparator()
+    .addItem('Create new plan sheet.', 'createPlanSheet')
+    .addItem('Create new history sheet.', 'createHistSheet')
+  .addToUi();
+  
+  inventoryMenu
+    .addItem('Reload axie Inventory.', 'axieInventory')
+    .addItem('Search By name.', 'searchAxiesByName')
+  .addToUi();
+
+  extraTools
+    .addItem('Update all plans', 'updateAllPlans')
+    .addItem('invert cells value: rangeStart_End > rangeEnd_Start', 'switchPlaces')
+  .addToUi();
+  
+//  ui.createMenu('**TEST MENU**')
+//    .addItem('tst_scanForBabies', 'tst_scanForBabies')
+//  .addToUi();
 }
+
+
+
 
 // Reload/update plan sheet
 function updatePlan(planName) {
@@ -134,13 +155,18 @@ function updatePlan(planName) {
   for(var i = 0; i < pd.data.length; i++) {
     
     //If row is check as complete dont process, if ids are not number dont process
-    if( typeof(pd.data[i][2]) === "number" && typeof(pd.data[i][4]) === "number" && pd.data[i][0] === false) {
-      sires.push(pd.data[i][2]);
-      matrons.push(pd.data[i][4]);
-    } else { 
+    if(!isNaN(pd.data[i][2]) && pd.data[i][0] === false ) { 
+      sires.push(Number(pd.data[i][2]));
+    } else {
       sires.push("");
-      matrons.push("");
-    } 
+    }
+    if(!isNaN(pd.data[i][4]) && pd.data[i][0] === false) {
+      matrons.push(Number(pd.data[i][4]));
+      continue;
+    } else {
+      matrons.push("");   
+    }
+    
   };
   
   var siresData = Ai.getMultiAxies(sires);
@@ -185,11 +211,23 @@ function updatePlan(planName) {
       };
     };
     
-    //apply to all pairs
-    if( typeof(pd.data[i][2]) === "number" && typeof(pd.data[i][4]) === "number") {
+    //If axie id is numeric simply.
+    if(!isNaN(pd.data[i][2]) && pd.data[i][2] !== "") { 
+      //change Id to axie url HyperLink
+      pd.data[i][2] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ pd.data[i][2]+'\", '+ '\"' +pd.data[i][2] +'\")');
+    };//repeat as above for matron.
+    if(!isNaN(pd.data[i][4]) && pd.data[i][4] !== "") {
+      pd.data[i][4] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ pd.data[i][4]+'\", '+ '\"' +pd.data[i][4] +'\")');
+    };
+    
+    
+      
+    
+    if(pd.data[i][2] && pd.data[i][4] && !isNaN(pd.data[i][2]) && !isNaN(pd.data[i][4])) {
       //add freak breeding calculator link
       pd.data[i][9] = axieFreakCalcUrl(pd.data[i][2], pd.data[i][4]);
     };
+    
     
   };
   //Set data to sheet.
@@ -206,7 +244,7 @@ function updatePlan(planName) {
 //refresh all your plans at once.
 function updateAllPlans() {
   var shtNames = [],
-      sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+      sheets = ss.getSheets();
   
   for (var i= 0; i < sheets.length; i++) {
     var shtName = sheets[i].getName();
@@ -214,22 +252,37 @@ function updateAllPlans() {
   };
   Logger.log("Pages that will be updated: "+ shtNames.join(", "));
   
-  for (var i = 0; i < shtNames.length; i++) {
-    updatePlan(shtNames[i]);
+  function loopTrouPlans(shtList) {
+    for (var i = 0; i < shtList.length; i++) {
+      updatePlan(shtList[i]);
+    }
   };
   
+  if(shtNames.length > 12) {
+  
+    var ui = ss.getUi();
+    var response = ui.prompt("Search in axies names", ui.ButtonSet.YES_CANCEL);
+    
+    // Process the user's response.
+    if (response.getSelectedButton() == ui.Button.OK) { loopTrouPlans(shtNames); 
+    } else if (response.getSelectedButton() == ui.Button.CANCEL) { Logger.log("Search canceled");
+    } else { Logger.log("Exit prompt");
+    };
+    
+  } else {
+    loopTrouPlans(shtNames);
+  };
   return;
 };
 
-
+//You have more than 12 plans to update. \nIt Might take some time or even crash. \nWould you like to proceed?
 
 //Scan for babies
       //link to babies after breeding
 function scanForBabies(planName) {
   
-  var plan = !planName ? sheet : ss.getSheetByName(planName);
-  
-  var pd = loadPlanData(plan),
+  var plan = ss.getSheetByName("tstPlan"),//!planName ? sheet : ss.getSheetByName(planName),
+      pd = loadPlanData(plan),
       sires = [],
       matrons = [];
   
@@ -237,7 +290,7 @@ function scanForBabies(planName) {
   for(var i = 0; i < pd.data.length; i++) {
     
     //If row is check as complete dont process, if ids are not number dont process
-    if( typeof(pd.data[i][2]) === "number" && typeof(pd.data[i][4]) === "number") {
+    if( !isNaN(pd.data[i][2]) && !isNaN(pd.data[i][4]) && pd.data[i][0] == false ) {
       sires.push(pd.data[i][2]);
       matrons.push(pd.data[i][4]);
     } else { 
@@ -246,33 +299,46 @@ function scanForBabies(planName) {
     } 
   };
   
+   //get axies data
   var axies = pagination_(Ai.getMyAxies, {address: plan.getRange("planEthAddress").getValue(),
                                           stage: [1, 2, 3], offset: 0} , "axies", "totalAxies", 12);
-  
-  // for each pair check babies
-  for(var i =  0; i < pd.data.length; i++) {
+  // for each pair
+  var rowPos = 3;
+  for(var i =  0; i < sires.length; i++) {
     var sire = sires[i],
-        matron = matrons[i];
-    
+        matron = matrons[i],
+        babies = [];
     
     if(sire && matron) {
       //check each babies
       for (var a = 0; a < axies.length; a++) {
-        
         if(sire == axies[a].sireId && matron == axies[a].matronId) {
-          
-          pd.data[i][10] = 'https://axieinfinity.com/axie/'+ axies[a].id;
+          babies.push(axies[a].id);
           axies.splice(a, 1);
-          break;
-        }; 
-      }; 
+          a--;
+        };
+      };
+
+      if(babies.length > 0) {
+      Logger.log("setting first baby id");
+        plan.getRange(rowPos +i, 11).setValue('https://axieinfinity.com/axie/'+ babies[0]);
+        Logger.log("splicing")
+        Logger.log(babies.splice(0, 1));
+      }
+      
+      while (babies.length > 0) {
+        Logger.log("inserting rows");
+        var baby =  babies[babies.length -1];
+        
+        plan.insertRowAfter(rowPos+i);
+        rowPos += 1;
+        plan.getRange(rowPos+i, 11).setValue('https://axieinfinity.com/axie/'+ baby);
+        Logger.log(babies.splice(babies.length -1, 1));
+      };
+      
     };
   };
   
-  //Set data to sheet.
-  var dataRange = plan.getDataRange().offset(2, 0, pd.data.length, pd.head1.length);
-  
-  dataRange.setValues(pd.data);
   rng.refreshTrigger.setValue(Math.random(1, 10));
   return plan.getName();
 };
@@ -327,14 +393,14 @@ function saveToHistory(planName) {
 
 //Load axie inventory
 function axieInventory() {
-  var invProfile = axieInvSht.getRange("axieInvEthAddr").getValue(),
+  var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
       ethAddr = !invProfile ? defaultProfile: invProfile;
 //  Logger.log(ethAddr);
   var axieInv = symmetric2DArray_(pagination_(Ai.getMyAxies, {address: ethAddr, offset: 0}, "axies", "totalAxies", 12, axieTemp2_));
   
-  var dataRange = axieInvSht.getDataRange();
+  var dataRange = sheet.getDataRange();
   
-  dataRange.offset(2, 1, axieInvSht.getLastRow(), axieInvSht.getLastColumn()).clearContent();//clean sheet
+  dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
   dataRange.offset(2, 1, axieInv.length, axieInv[0].length).setValues(axieInv);
   rng.refreshTrigger.setValue(Math.random(1, 10));
   return;
@@ -349,14 +415,14 @@ function searchAxiesByName() {
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.OK) {
     
-    var invProfile = axieInvSht.getRange("axieInvEthAddr").getValue(),
+    var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
         ethAddr = !invProfile ? defaultProfile: invProfile;
     
     Logger.log(response.getResponseText());
     Logger.log(ethAddr);
     
     var searchResult = axieSearchByName(response.getResponseText(), ethAddr, axieTemp2_),
-        dataRange = axieInvSht.getDataRange();
+        dataRange = sheet.getDataRange();
     Logger.log(searchResult);
     
     //If nothing found
@@ -364,7 +430,7 @@ function searchAxiesByName() {
       searchResult = [["Nothing found with \""+ response.getResponseText()+ "\" in your axie inventory."]];
     }
     
-    dataRange.offset(2, 1, axieInvSht.getLastRow(), axieInvSht.getLastColumn()).clearContent();//clean sheet
+    dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
     dataRange.offset(2, 1, searchResult.length, searchResult[0].length).setValues(searchResult);
     rng.refreshTrigger.setValue(Math.random(1, 10));
     return;
@@ -372,4 +438,7 @@ function searchAxiesByName() {
   } else if (response.getSelectedButton() == ui.Button.CANCEL) { Logger.log("Search canceled");
   } else { Logger.log("Exit prompt")};
 };
+  
+  
+  
   

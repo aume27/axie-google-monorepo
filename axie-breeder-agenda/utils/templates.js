@@ -31,7 +31,7 @@ var axieTemp_ = function(a) {
   //Base axie data
   if(a.stage < 3) {
     //stage 1 egg and 2 larva
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://axieinfinity.com/axie/'+ a.id), a.name, "",
+    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, "",
                a.title, a.stage, a.level, "", "", "" , "", "", "", "",
                "", "", "",
                "", "", "",
@@ -39,12 +39,12 @@ var axieTemp_ = function(a) {
                "", "", "", "", "", "", "", "", "", 
                "", "", "", "", "", "", "", "", "", 
                "", "", "", "", "", "", "", "", "",
-               ('https://axieinfinity.com/profile/'+ a.owner), ('https://axieinfinity.com/axie/'+ a.sireId), ('https://axieinfinity.com/axie/'+ a.matronId),
+               ('https://marketplace.axieinfinity.com/profile/'+ a.owner), ('https://marketplace.axieinfinity.com/axie/'+ a.sireId), ('https://marketplace.axieinfinity.com/axie/'+ a.matronId),
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   } else if(a.stage < 4) {
     
     //stage 3 petite and 4 adult
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://axieinfinity.com/axie/'+ a.id), a.name, a.class,
+    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
                a.title, a.stage, a.level, "", false, "",
                a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale,
                a.parts[0].name, a.parts[0].class, a.parts[0].stage,
@@ -53,11 +53,11 @@ var axieTemp_ = function(a) {
                a.parts[3].name, a.parts[3].class, a.parts[3].stage, a.parts[3].moves[0].name, a.parts[3].moves[0].type, a.parts[3].moves[0].attack, a.parts[3].moves[0].defense, a.parts[3].moves[0].accuracy, addEffect(a, 3),
                a.parts[4].name, a.parts[4].class, a.parts[4].stage, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
                a.parts[5].name, a.parts[5].class, a.parts[5].stage, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5),
-               ('https://axieinfinity.com/profile/'+ a.owner), ('https://axieinfinity.com/axie/'+ a.sireId), ('https://axieinfinity.com/axie/'+ a.matronId),
+               ('https://marketplace.axieinfinity.com/profile/'+ a.owner), ('https://marketplace.axieinfinity.com/axie/'+ a.sireId), ('https://marketplace.axieinfinity.com/axie/'+ a.matronId),
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   } else {
     //Stage 4 adult
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://axieinfinity.com/axie/'+ a.id), a.name, a.class,
+    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
                a.title, a.stage, a.level, a.exp, a.breedable, a.breedCount,
                a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale,
                a.parts[0].name, a.parts[0].class, a.parts[0].stage,
@@ -66,7 +66,7 @@ var axieTemp_ = function(a) {
                a.parts[3].name, a.parts[3].class, a.parts[3].stage, a.parts[3].moves[0].name, a.parts[3].moves[0].type, a.parts[3].moves[0].attack, a.parts[3].moves[0].defense, a.parts[3].moves[0].accuracy, addEffect(a, 3),
                a.parts[4].name, a.parts[4].class, a.parts[4].stage, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
                a.parts[5].name, a.parts[5].class, a.parts[5].stage, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5),
-               ('https://axieinfinity.com/profile/'+ a.owner), ('https://axieinfinity.com/axie/'+ a.sireId), ('https://axieinfinity.com/axie/'+ a.matronId),
+               ('https://marketplace.axieinfinity.com/profile/'+ a.owner), ('https://marketplace.axieinfinity.com/axie/'+ a.sireId), ('https://marketplace.axieinfinity.com/axie/'+ a.matronId),
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   };
   //additional contextual data:
@@ -89,7 +89,7 @@ var axieTemp2_ = function(a) {
   
   //Base axie data
   if(a.stage < 3) {//stage 1 egg and 2 larva
-    axStats = [('=HYPERLINK(\"https://axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, "",
+    axStats = [('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, "",
                "", "", "", "", "", "", "", "", (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
                "", "",
                "", "",
@@ -98,7 +98,7 @@ var axieTemp2_ = function(a) {
                "", "", "", "", "", "", "", "",
                "", "", "", "", "", "", "", ""];
   } else if(a.stage < 4) {//stage 3 petite and 4 adult
-    axStats = [('=HYPERLINK(\"https://axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, a.class,
+    axStats = [('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, a.class,
                a.title, a.level, "", "", a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale, (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
                a.parts[0].name, a.parts[0].class,
                a.parts[1].name, a.parts[1].class,
@@ -107,7 +107,7 @@ var axieTemp2_ = function(a) {
                a.parts[4].name, a.parts[4].class, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
                a.parts[5].name, a.parts[5].class, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5)];
   } else {//Stage 4 adult
-    axStats = [('=HYPERLINK(\"https://axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, a.class,
+    axStats = [('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, a.class,
                a.title, a.level, a.exp, a.breedCount, a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale, (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
                a.parts[0].name, a.parts[0].class,
                a.parts[1].name, a.parts[1].class,
@@ -152,9 +152,9 @@ var teamHeadTemp_ = function() {
 };
 var teamTemp_ = function(a) {
   return ['https://axieinfinity.com/team/' +a.teamId, a.owner, a.teamId, a.name, 
-          'https://axieinfinity.com/axie/'+ a.teamMembers[0].axieId, a.teamMembers[0].moveSet[0].part, a.teamMembers[0].moveSet[1].part, a.teamMembers[0].moveSet[2].part, a.teamMembers[0].moveSet[3].part, a.teamMembers[0].position, 
-          'https://axieinfinity.com/axie/'+ a.teamMembers[1].axieId, a.teamMembers[1].moveSet[0].part, a.teamMembers[1].moveSet[1].part, a.teamMembers[1].moveSet[2].part, a.teamMembers[1].moveSet[3].part, a.teamMembers[1].position, 
-          'https://axieinfinity.com/axie/'+ a.teamMembers[2].axieId, a.teamMembers[2].moveSet[0].part, a.teamMembers[2].moveSet[1].part, a.teamMembers[2].moveSet[2].part, a.teamMembers[2].moveSet[3].part, a.teamMembers[2].position];
+          'https://marketplace.axieinfinity.com/axie/'+ a.teamMembers[0].axieId, a.teamMembers[0].moveSet[0].part, a.teamMembers[0].moveSet[1].part, a.teamMembers[0].moveSet[2].part, a.teamMembers[0].moveSet[3].part, a.teamMembers[0].position, 
+          'https://marketplace.axieinfinity.com/axie/'+ a.teamMembers[1].axieId, a.teamMembers[1].moveSet[0].part, a.teamMembers[1].moveSet[1].part, a.teamMembers[1].moveSet[2].part, a.teamMembers[1].moveSet[3].part, a.teamMembers[1].position, 
+          'https://marketplace.axieinfinity.com/axie/'+ a.teamMembers[2].axieId, a.teamMembers[2].moveSet[0].part, a.teamMembers[2].moveSet[1].part, a.teamMembers[2].moveSet[2].part, a.teamMembers[2].moveSet[3].part, a.teamMembers[2].position];
 };
 
 

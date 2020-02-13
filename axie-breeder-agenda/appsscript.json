@@ -7,5 +7,6 @@
       "version": "11"
     }]
   },
-  "exceptionLogging": "STACKDRIVER"
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "DEPRECATED_ES5"
 }

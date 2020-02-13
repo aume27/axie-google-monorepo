@@ -26,6 +26,7 @@ function axieGetSingle(axie) {
       result = [axStats];
   
   addHeader_(showHead, result, axieHeadTemp_());
+//  Logger.log(result)
   return result;
 }
 
@@ -114,6 +115,7 @@ function axieGetMultiple(axies) {
     } else { result.push(""); };
   });
   
+//  Logger.log(result);
   return result;
 }
 
@@ -285,7 +287,7 @@ function axieBtlActivityPoints(axies) { //can also use array of ids when used in
   response.forEach(function(axie) {
     result.push([axie.axieId, axie.activityPoint]);
   });
-  
+//  if(showHead) axies.unshift();
   addHeader_(showHead, result, ["Axie id", "Activity points"]);
   return symmetric2DArray_(result);
 };
@@ -356,6 +358,7 @@ function axieGetTeam(teamId) {
     var result = [],
         response = Ai.getTeam(teamId);
   
+//  Logger.log(response);
   result.push(teamTemp_(response));
   
   addHeader_(showHead, result, teamHeadTemp_());
@@ -390,8 +393,11 @@ function axieLandMarket(offset, count, sorting, search, type, rarity) {
   
   Logger.log(p)
   var response = Ai.getMarket(p);
+//  Logger.log(response);
   
   response.results.forEach(function(e) {
+//    Logger.log(e);
+    
     if(e.assetType === "land") {
       result.push(landTemp_(e));
     } else if(e.assetType === "item") {
@@ -429,11 +435,14 @@ function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
   if(type) p.type = type;
   if(rarity) p.rarity = rarity;
   
+//  Logger.log(p)
   var response = Ai.getMarketBundles(p);
+//  Logger.log(response);
   
   if(showHead) result = bundleHeadTemp_();
   
   response.results.forEach(function(bundle) {
+//    Logger.log(bun);
     result = bundleTemp_(bundle, result);
     Logger.log(result)
   });
@@ -489,7 +498,8 @@ function axieCheckBreedable(axie1,axie2, ethAddress, lovePTotal) {
   } else if(!lovePTotal) {
     var lpt = Ai.getSmallLoveP(ethAddress) 
   }
-  
+//  Logger.log(bree)
+//  Logger.log(axie);
   var lpCost = (axieCountLPCost(ax1BC) + axieCountLPCost(ax2BC));
   
   if(lpCost <= lpt) return true;
