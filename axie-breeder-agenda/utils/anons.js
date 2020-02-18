@@ -78,3 +78,18 @@ function pagination_(source, p, arrayId, totalId, offset, modifier, maxItem) {
   }
   return arr;
 };
+
+/**
+ * If checked value DOES NOT match with any of the values
+ * in the array return true.
+ * @customFunction
+ */
+var chkAbsence = function(value2check, array) {
+  if(array == undefined) return true ;
+
+  function checkInequal(a) { return a !== value2check };
+
+  var res = array.every(checkInequal);
+  //  Logger.log("checkIfNoMatch:\n result: "+res);
+  return res;
+};
