@@ -104,6 +104,33 @@ function createHistSheet(sheetName) {
 };
 
 
+/**
+ * List of check function  for axie/axiePair checks
+ * pair check = 2 axie check
+ */
+// pair is check as complete dont process
+function isDone(checkCellValue) {
+  return checkCellValue == true;
+}
+// ids are not number dont process
+function validateId(axieId) {
+  return (!isNaN(axieId) && axieId !== "");
+}
+function validatePair(axieId1, axieId2) {
+  return (validateId(axieId1) && validateId(axieId2));
+}
+// is mature
+function isMature(axieData) {
+  return (axieData && axieData.stage > 3);
+}
+function pairMature(axieData1, axieData2) {
+  return (isMature(axieData1) && isMature(axieData2));
+}
+
+
+
+
+
 
 
 
@@ -153,22 +180,27 @@ function updatePlan(planName) {
   
   //get axies lists
   for(var i = 0; i < pd.data.length; i++) {
-    
     //If row is check as complete dont process, if ids are not number dont process
-    if(!isNaN(pd.data[i][2]) && pd.data[i][0] === false ) { 
-      sires.push(Number(pd.data[i][2]));
+    if (!isDone(pd.data[i][0])) {
+      if(validateId(pd.data[i][2])) { 
+        sires.push(Number(pd.data[i][2]));
+      } else {
+        sires.push("");
+      }
+      if(validateId(pd.data[i][4])) {
+        matrons.push(Number(pd.data[i][4]));
+        continue;
+      } else {
+        matrons.push("");   
+      }
     } else {
       sires.push("");
-    }
-    if(!isNaN(pd.data[i][4]) && pd.data[i][0] === false) {
-      matrons.push(Number(pd.data[i][4]));
-      continue;
-    } else {
-      matrons.push("");   
-    }
-    
+      matrons.push("");  
+    };
   };
   
+  Logger.log(sires);
+  Logger.log(matrons);
   var siresData = Ai.getMultiAxies(sires);
   var matronsData = Ai.getMultiAxies(matrons);
   
@@ -178,7 +210,7 @@ function updatePlan(planName) {
         matron = matronsData[i];
     
     //If row is check as complete dont process
-    if(pd.data[i][0] === true) {
+    if(isDone(pd.data[i][0])) {
       //breedcount
       pd.data[i][3] = "";
       pd.data[i][5] = "";
@@ -188,20 +220,21 @@ function updatePlan(planName) {
       
     } else {
       
-      if(sire && sire.stage > 3) {
+      //if parent is mature get breadcount.
+      if(isMature(sire)) {
         pd.data[i][3] = sire.breedCount; //sire breedcount
       } else {
         pd.data[i][3] = "";
       };
       
-      if(matron && matron.stage >3) {
+      if(isMature(matron)) {
         pd.data[i][5] = matron.breedCount; //matron breedcount
       } else {
         pd.data[i][5] = "";
       };
       
       //Check if breedables
-      if(sire && sire.stage > 3 && matron && matron.stage > 3) {
+      if(pairMature(sire, matron)) {
         pd.data[i][6] = ('=axieCountLPTC($D'+(i+3) +' , $F'+(i+3)+')');
         pd.data[i][7] = ('=axieSimpleCheckBreedable($D'+(i+3) +' , $F'+(i+3)+ ', planAccLovePotionTotal'+')');
         
@@ -211,21 +244,25 @@ function updatePlan(planName) {
       };
     };
     
+    //apply to all
     //If axie id is numeric simply.
-    if(!isNaN(pd.data[i][2]) && pd.data[i][2] !== "") { 
+    if(validateId(sires[i])) { 
       //change Id to axie url HyperLink
-      pd.data[i][2] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ pd.data[i][2]+'\", '+ '\"' +pd.data[i][2] +'\")');
+      pd.data[i][2] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ sires[i] +'\", '+ '\"' + sires[i] +'\")');
     };//repeat as above for matron.
-    if(!isNaN(pd.data[i][4]) && pd.data[i][4] !== "") {
-      pd.data[i][4] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ pd.data[i][4]+'\", '+ '\"' +pd.data[i][4] +'\")');
+    if(validateId(matrons[i])) {
+      pd.data[i][4] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ matrons[i]+'\", '+ '\"' +matrons[i] +'\")');
     };
     
     
       
     
-    if(pd.data[i][2] && pd.data[i][4] && !isNaN(pd.data[i][2]) && !isNaN(pd.data[i][4])) {
-      //add freak breeding calculator link
-      pd.data[i][9] = axieFreakCalcUrl(pd.data[i][2], pd.data[i][4]);
+    if(validatePair(sires[i], matrons[i])) {
+      //add freak axie breeding calculator link
+      var fabcLink = axieFreakCalcUrl(sires[i], matrons[i]);
+      
+//      Logger.log(fabcLink);
+      pd.data[i][9] = fabcLink;
     };
     
     
@@ -290,7 +327,7 @@ function scanForBabies(planName) {
   for(var i = 0; i < pd.data.length; i++) {
     
     //If row is check as complete dont process, if ids are not number dont process
-    if( !isNaN(pd.data[i][2]) && !isNaN(pd.data[i][4]) && pd.data[i][0] == false ) {
+    if(validatePair(pd.data[i][2], pd.data[i][4]) && !isDone(pd.data[i][0])) {
       sires.push(pd.data[i][2]);
       matrons.push(pd.data[i][4]);
     } else { 
@@ -302,8 +339,8 @@ function scanForBabies(planName) {
    //get axies data
   var axies = pagination_(Ai.getMyAxies, {address: plan.getRange("planEthAddress").getValue(),
                                           stage: [1, 2, 3], offset: 0} , "axies", "totalAxies", 12);
-  // for each pair
-  var rowPos = 3;
+  // for each couple
+  var rowPos = 3;//skip header, count inserted rows.
   for(var i =  0; i < sires.length; i++) {
     var sire = sires[i],
         matron = matrons[i],
