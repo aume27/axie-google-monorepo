@@ -54,7 +54,8 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 var ss = SpreadsheetApp.getActive(),
     sheet = ss.getActiveSheet(),
     cell = sheet.getActiveCell(),
-    managerSht = ss.getSheetByName("Manager");
+    managerSht = ss.getSheetByName("Manager"),
+    mainInventory = ss.getSheetByName("Inventory: Main");
 
 var rng = { //predefined ranges and settings
   mainAddress: managerSht.getRange("mainEthAddr"),
@@ -63,111 +64,17 @@ var rng = { //predefined ranges and settings
 }
 
 var defaultProfile = rng.mainAddress.getValue(), //Ethereum address
-    timeZone = Session.getScriptTimeZone();
-
-
-
-
-//////////////////////////////////Utils//////////////////////////////////
-
-function loadPlanData(plan) {
-  var planData = plan.getDataRange().getValues(),
-//      planSize = {rows: , cols: },
-      head1 = planData.shift(),
-      head2 = planData.shift();
-  return {data: planData, head1: head1, head2: head2, headLength: 2};
-}
-
-
-// Create new plan sheet (nsht)
-function createPlanSheet(sheetName) {
-  //get template
-  var template = ss.getSheetByName("plan.temp") //.activate();
-  //create copy
-  var nsht = template.copyTo(ss);
-  //set sheet name
-  sheetName ? nsht.setName(sheetName) : nsht.setName("plan: ADD_NAME_HERE");
-  return nsht.activate();//.getName();
-};
-
-
-
-// Create new plan sheet (nsht)
-function createHistSheet(sheetName) {
-  //get template
-  var template = ss.getSheetByName("history.temp");
-  //create copy
-  var nsht = template.copyTo(ss);
-  //set sheet name
-  sheetName ? nsht.setName(sheetName) : nsht.setName("hist: ADD_NAME_HERE");
-  return nsht.activate();
-};
-
-
-/**
- * List of check function  for axie/axiePair checks
- * pair check = 2 axie check
- */
-// pair is check as complete dont process
-function isDone(checkCellValue) {
-  return checkCellValue == true;
-}
-// ids are not number dont process
-function validateId(axieId) {
-  return (!isNaN(axieId) && axieId !== "");
-}
-function validatePair(axieId1, axieId2) {
-  return (validateId(axieId1) && validateId(axieId2));
-}
-// is mature
-function isMature(axieData) {
-  return (axieData && axieData.stage > 3);
-}
-function pairMature(axieData1, axieData2) {
-  return (isMature(axieData1) && isMature(axieData2));
-}
-
-
-
-
-
-
-
+    timeZone = Session.getScriptTimeZone(),
+    actDate = function actDate() {
+                return (Utilities.formatDate(new Date(), timeZone, "dd-MM-yyyy' 'HH:mm"))
+              };
 
 //////////////////////////////////Core//////////////////////////////////
+//////////////////////////////////Plan sheets system//////////////////////////////////
 
-// Create a menu in google sheet ui.
-function onOpen(e) {
-  var ui = SpreadsheetApp.getUi();
-  var agendaMenu = ui.createMenu('**Axie agenda tools**'),
-      inventoryMenu = ui.createMenu('**Axie inventory tools**'),
-      extraTools = ui.createMenu('**Extra tools**');
-      
-  agendaMenu
-    .addItem('Update plan. (load data)', 'updatePlan')
-    .addItem('Scan for babies.(After eggs is in inventory)', 'scanForBabies')
-    .addItem('Save completed breeds.', 'saveToHistory')
-    .addSeparator()
-    .addItem('Create new plan sheet.', 'createPlanSheet')
-    .addItem('Create new history sheet.', 'createHistSheet')
-  .addToUi();
-  
-  inventoryMenu
-    .addItem('Reload axie Inventory.', 'axieInventory')
-    .addItem('Search By name.', 'searchAxiesByName')
-  .addToUi();
-
-  extraTools
-    .addItem('Update all plans', 'updateAllPlans')
-    .addItem('invert cells value: rangeStart_End > rangeEnd_Start', 'switchPlaces')
-  .addToUi();
-  
-//  ui.createMenu('**TEST MENU**')
-//    .addItem('tst_scanForBabies', 'tst_scanForBabies')
-//  .addToUi();
-}
-
-
+//(ONLY) if completion date cell is empty:
+//On edit check if pair gets checked as completed if yes save SLP cost, 
+  // calculate SLP cost value in Base currency and save it. Then add completion date.
 
 
 // Reload/update plan sheet
@@ -178,7 +85,7 @@ function updatePlan(planName) {
       sires = [],
       matrons = [];
   
-  //get axies lists
+  //get axies id lists
   for(var i = 0; i < pd.data.length; i++) {
     //If row is check as complete dont process, if ids are not number dont process
     if (!isDone(pd.data[i][0])) {
@@ -210,15 +117,7 @@ function updatePlan(planName) {
         matron = matronsData[i];
     
     //If row is check as complete dont process
-    if(isDone(pd.data[i][0])) {
-      //breedcount
-      pd.data[i][3] = "";
-      pd.data[i][5] = "";
-      //love potion counts/checks
-      pd.data[i][6] = "";
-      pd.data[i][7] = "";
-      
-    } else {
+    if(!isDone(pd.data[i][0])) {
       
       //if parent is mature get breadcount.
       if(isMature(sire)) {
@@ -236,7 +135,7 @@ function updatePlan(planName) {
       //Check if breedables
       if(pairMature(sire, matron)) {
         pd.data[i][6] = ('=axieCountLPTC($D'+(i+3) +' , $F'+(i+3)+')');
-        pd.data[i][7] = ('=axieSimpleCheckBreedable($D'+(i+3) +' , $F'+(i+3)+ ', planAccLovePotionTotal'+')');
+        pd.data[i][7] = ('=axieCheckBreedableSimple($D'+(i+3) +' , $F'+(i+3)+ ', planAccLovePotionTotal'+')');
         
       } else {
         pd.data[i][6] = "";
@@ -244,7 +143,7 @@ function updatePlan(planName) {
       };
     };
     
-    //apply to all
+  //Apply to all
     //If axie id is numeric simply.
     if(validateId(sires[i])) { 
       //change Id to axie url HyperLink
@@ -253,20 +152,16 @@ function updatePlan(planName) {
     if(validateId(matrons[i])) {
       pd.data[i][4] = ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ matrons[i]+'\", '+ '\"' +matrons[i] +'\")');
     };
-    
-    
-      
-    
+
     if(validatePair(sires[i], matrons[i])) {
       //add freak axie breeding calculator link
-      var fabcLink = axieFreakCalcUrl(sires[i], matrons[i]);
+      var fabcLink = axiePrintFreakCalcUrl(sires[i], matrons[i]);
       
 //      Logger.log(fabcLink);
       pd.data[i][9] = fabcLink;
-    };
-    
-    
+    };   
   };
+  
   //Set data to sheet.
   var dataRange = plan.getDataRange().offset(2, 0, pd.data.length, pd.head1.length);
   
@@ -312,13 +207,15 @@ function updateAllPlans() {
   return;
 };
 
+
+
 //You have more than 12 plans to update. \nIt Might take some time or even crash. \nWould you like to proceed?
 
 //Scan for babies
       //link to babies after breeding
 function scanForBabies(planName) {
   
-  var plan = ss.getSheetByName("tstPlan"),//!planName ? sheet : ss.getSheetByName(planName),
+  var plan = !planName ? sheet : ss.getSheetByName(planName), //ss.getSheetByName("tstPlan"),//
       pd = loadPlanData(plan),
       sires = [],
       matrons = [];
@@ -355,10 +252,10 @@ function scanForBabies(planName) {
           a--;
         };
       };
-
+    
       if(babies.length > 0) {
       Logger.log("setting first baby id");
-        plan.getRange(rowPos +i, 11).setValue('https://axieinfinity.com/axie/'+ babies[0]);
+        plan.getRange(rowPos +i, 11).setValue('https://marketplace.axieinfinity.com/axie/'+ babies[0]);
         Logger.log("splicing")
         Logger.log(babies.splice(0, 1));
       }
@@ -369,12 +266,13 @@ function scanForBabies(planName) {
         
         plan.insertRowAfter(rowPos+i);
         rowPos += 1;
-        plan.getRange(rowPos+i, 11).setValue('https://axieinfinity.com/axie/'+ baby);
+        plan.getRange(rowPos+i, 11).setValue('https://marketplace.axieinfinity.com/axie/'+ baby);
         Logger.log(babies.splice(babies.length -1, 1));
       };
       
     };
   };
+  
   
   rng.refreshTrigger.setValue(Math.random(1, 10));
   return plan.getName();
@@ -403,7 +301,7 @@ function saveToHistory(planName) {
   //append rows to history
   for(var i =  0; i < pd.data.length; i++) {
     if (pd.data[i][0] == true) {
-      var row = [(Utilities.formatDate(new Date(), timeZone, "dd-MM-yyyy' 'HH:mm")), pd.data[i][2], pd.data[i][4], pd.data[i][10], pd.data[i][8], pd.data[i][11], pd.data[i][9]];
+      var row = [actDate, pd.data[i][2], pd.data[i][4], pd.data[i][10], pd.data[i][8], pd.data[i][11], pd.data[i][9]];
       history.appendRow(row);
     }; 
   }
@@ -428,53 +326,147 @@ function saveToHistory(planName) {
 
 
 
+//////////////////////////////////Axie Inventory system//////////////////////////////////
+function advSearchMenu() {
+  var html = HtmlService.createHtmlOutputFromFile('html/sidebarAdvSearch')
+    .setWidth(370)
+    .setHeight(740)
+  SpreadsheetApp.getUi().showModalDialog(html, 'Advanced search menu');
+}
+
+function nameSearchMenu() {
+  var html = HtmlService.createHtmlOutputFromFile('html/sidebarNameSearch')
+    .setWidth(450)
+    .setHeight(300)
+  SpreadsheetApp.getUi().showModalDialog(html, 'Name search menu');
+}
+
 //Load axie inventory
 function axieInventory() {
   var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
-      ethAddr = !invProfile ? defaultProfile: invProfile;
-//  Logger.log(ethAddr);
-  var axieInv = symmetric2DArray_(pagination_(Ai.getMyAxies, {address: ethAddr, offset: 0}, "axies", "totalAxies", 12, axieTemp2_));
-  
-  var dataRange = sheet.getDataRange();
+      ethAddr = !invProfile ? defaultProfile: invProfile,
+      axieInv = symmetric2DArray_(pagination_(Ai.getMyAxies, {address: ethAddr, offset: 0}, "axies", "totalAxies", 12, axieTemp2_)),
+      dataRange = sheet.getDataRange();
   
   dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
   dataRange.offset(2, 1, axieInv.length, axieInv[0].length).setValues(axieInv);
   rng.refreshTrigger.setValue(Math.random(1, 10));
   return;
-  
 };
 
-
-function searchAxiesByName() {
-  var ui = SpreadsheetApp.getUi();
-  var response = ui.prompt("Search in axies names", "Enter the text you want to search in your axies names", ui.ButtonSet.OK_CANCEL);
+function advSearch(response) {
   
-  // Process the user's response.
-  if (response.getSelectedButton() == ui.Button.OK) {
+  if(sheet.getName().indexOf("Inv") <= -1) sheet = mainInventory;
+  var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
+      ethAddr = !invProfile ? defaultProfile: invProfile,
+      p = JSON.parse(JSON.stringify(response)),
+      template = axieTemp2_;
+  
+  Logger.log("param");
+  Logger.log(p);
+//  Logger.log(ethAddr);
+  
+  //define where we search, all or user axies.
+  
+  var searchStep1;
+  if(p.mine == "true") {
+    searchStep1 = Ai.getMyAxies;
+    p.address = ethAddr;
     
-    var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
-        ethAddr = !invProfile ? defaultProfile: invProfile;
-    
-    Logger.log(response.getResponseText());
-    Logger.log(ethAddr);
-    
-    var searchResult = axieSearchByName(response.getResponseText(), ethAddr, axieTemp2_),
-        dataRange = sheet.getDataRange();
-    Logger.log(searchResult);
-    
-    //If nothing found
-    if(!searchResult.length){
-      searchResult = [["Nothing found with \""+ response.getResponseText()+ "\" in your axie inventory."]];
-    }
-    
-    dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
-    dataRange.offset(2, 1, searchResult.length, searchResult[0].length).setValues(searchResult);
-    rng.refreshTrigger.setValue(Math.random(1, 10));
-    return;
-    
-  } else if (response.getSelectedButton() == ui.Button.CANCEL) { Logger.log("Search canceled");
-  } else { Logger.log("Exit prompt")};
+  } else searchStep1 = Ai.getAllAxies;
+  
+  Logger.log(searchStep1);
+  //get base data for axieinfinity, then pass to deeper searches
+  //Clean object and record other search params
+  delete p.mine;
+  var srchName = p.name,
+      setBreedCount = p.breedCount;
+  
+  
+
+  delete p.name;
+  delete p.breedCount;
+  cleanObj(p);
+  
+  Logger.log("param");
+  Logger.log(p);
+  //get base axie list
+  var axies = searchStep1(p),
+      totalFound = axies.totalAxies;
+  axies = axies.axies;
+  
+  Logger.log(axies);
+  
+  // Filter by breed count
+  if(setBreedCount) {
+    Logger.log("Checking breedcount:>")
+    Logger.log("  set breedcount:>")
+    Logger.log(setBreedCount)
+    var f1Axies = axies.filter(function (axie) {
+      return axie.breedCount === setBreedCount;
+    });
+  } else { var f1Axies = axies; };
+  Logger.log(f1Axies);
+  
+  
+  // Filter by name if requested
+  if(srchName) {
+    Logger.log("searching by name");
+    Logger.log("srchNAme");
+    Logger.log(srchName);
+    var f2Axies = axieSearchName(srchName, "", f1Axies, template),
+        searchResult = f2Axies;
+  } else { 
+    //Prepare axie data for spreadsheet. Done automatically when searching in names.
+    var searchResult = f1Axies.map(function(axie) {
+      return template(axie);
+    }); 
+  };
+  
+  
+  //If nothing found
+  if(!searchResult.length){
+    Logger.log("Nothing found");
+    searchResult = [["Nothing found with \""+ response.getResponseText()+ "\" in your axie inventory."]];
+  }
+  
+  var dataRange = sheet.getDataRange();
+  Logger.log("Search results:");
+  Logger.log(searchResult);
+  
+  dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
+  dataRange.offset(2, 1, searchResult.length, searchResult[0].length).setValues(searchResult);
+  rng.refreshTrigger.setValue(Math.random(1, 10));
+  return;
+}
+
+
+
+function searchAxiesByName(response) {
+  
+  if(sheet.getName().indexOf("Inv") <= -1) sheet = mainInventory;
+  var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
+      ethAddr = !invProfile ? defaultProfile: invProfile;
+  
+  //    Logger.log(response.name);
+  //    Logger.log(ethAddr);
+  
+  var searchResult = axieSearchName(response.name, ethAddr, "", axieTemp2_);
+  var dataRange = sheet.getDataRange();
+  Logger.log(searchResult);
+  
+  //If nothing found
+  if(!searchResult.length){
+    Logger.log("Nothing found");
+    searchResult = [["Nothing found with \""+ response.getResponseText()+ "\" in your axie inventory."]];
+  }
+  
+  dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
+  dataRange.offset(2, 1, searchResult.length, searchResult[0].length).setValues(searchResult);
+  rng.refreshTrigger.setValue(Math.random(1, 10));
+  return;
 };
+
   
   
   

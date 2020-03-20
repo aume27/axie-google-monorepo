@@ -1,3 +1,61 @@
+
+
+//function tst1212(a1, a2, a3, a4) { // testing function argsToObj()
+//  Logger.log("Length")
+//  Logger.log(arguments.length)
+//  Logger.log("first arg")
+//  Logger.log(arguments[0])
+//  Logger.log("args")
+//  Logger.log(arguments)
+//  
+//  var paramObj = argsToObj_(4,["a1","a2","a3","a4"], arguments);
+//  return paramObj;
+//}
+
+
+function tst(data) {
+//  Logger.log(tst1212("hello", true, 12, [1,2,3,4,5]));
+    //tst1212("hello", true, 12, [{obj: "tst"},{obj2: "tst2"}]));
+  
+  //function clearEmptyVals(n) { return n !== "" }; 
+  //var a = ["", "sfdfd", 1, "", ""];
+  //Logger.log(a.filter(clearEmptyVals));
+  
+  //  var sheet = ss.getSheetByName("Copy of offense").activate();
+  //  Logger.log(sheet);
+  //  sheet.appendRow(["hello world"]);
+  
+  
+  //  Logger.log(Ai.getMyAxies({
+  //    address: "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b",
+  //    stage: 1
+  //  }));
+  
+  
+  //  var ss = SpreadsheetApp.getActive(),
+  //      sheet = ss.getActiveSheet(),
+  //      cell = sheet.getActiveCell(),
+  //      manager = ss.getSheetByName("Manager");
+  //  Logger.log(manager);
+  //  Logger.log(manager.getRange("mainEthAddr").getA1Notation());
+  
+  
+  //  var out = new Array()
+  //  var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+  //  for (var i=0 ; i<sheets.length ; i++) out.push( [ sheets[i].getName() ] );
+  //  Logger.log(out);
+  //  return out
+  
+  //  var planName = "plan: tstPlan"
+  //  Logger .log(planName.split(": "));
+};
+
+
+function tst_priceFeed(){
+  Logger.log(cgkoExtV2("bitcoin","","","market_data.current_price.usd"));
+}
+
+
 function tst2_breedingPlannerSheet() {
   Logger.log(axieSearchByName("a.dps", "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //, axieTemp2_)); //tst5 search for and in axies name.
   
@@ -29,11 +87,14 @@ function tst2_breedingPlannerSheet() {
 
 
 function tsts_spreadsheetUtils() {
-//  Logger.log(axieGetByAddress("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b"));//,"" ,"","" ,"" ,"" ,"", "","", "" ,"", "", ""));//, ["mouth-toothless-bite", "tail-shrimp"])); //tst4 test getMyAxies
-  //axieSearchEncyclopedia()); //tst2
-    //axieSearchEncyclopedia("" ,"" ,"" ,"" ,"" ,4, "beast" ,"", "" ,"", "", "", "tail-the-last-one")); //tst2
+ var res = axieSearchEncyclopedia("", "", "1", "", "4", "plant", "", "", "", "", "", "mouth-toothless-bite", "tail-shrimp");
+     // axieSearchAddress("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b", "", "", "", "", "", "", "", "", "", "", "", "mouth-toothless-bite", "tail-shrimp");
     //axieGetSingle(27706)); //tst1
 //  getBodyParts(); //tst3 test getBodyParts
+  Logger.log(res);
+  
+  
+  
 //   Logger.log(getMultiAxies([27706, 27705, 27704]))
 //   Logger.log(Ai.getMultiAxies(27706, 27705, 27704));
 //  getSingleAxie(130000); //tst5 check response for different axie stages
@@ -46,15 +107,15 @@ function tsts_spreadsheetUtils() {
 //  Logger.log(getMarket("", 100, "", "", "", "epic")); //Ai.getMarket().results[0]); //tst12
 //  Logger.log(getMarketBundles("", 100, "", "", "", "")); //tst13
   
-  //Wohooo core functions done and working properly (for the moment)
-  
-  Logger.log(axieSearchByName("a.dps", "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //, axieTemp2_)); //tst5 search for and in axies name.
+  //Wohooo core functions done and working properly (for the moment).
+//  Logger.log(axiePriceFloor(true));
+  //axieSearchEncyclopedia("" , "", "" ,"" ,"" ,"" ,4, "beast" ,"", "" ,"", "", "", "tail-the-last-one"));
+  //axiePriceFloor(true));
+  //axieSearchByName("a.dps", "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //, axieTemp2_)); //tst5 search for and in axies name.
     //simpleCheckBreedable(0,6, 150)); //tst4
     //getSmallLoveP("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //tst3
     //getAccAxieCount("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //tst2
     //isBreedable(124136)); //120885)); //tst1
-  
-    
 }
 
 function tst_library() {
@@ -64,36 +125,6 @@ function tst_library() {
 
 
 
-function tst() {
-Logger.log();
-//  var sheet = ss.getSheetByName("Copy of offense").activate();
-//  Logger.log(sheet);
-//  sheet.appendRow(["hello world"]);
-  
-  
-//  Logger.log(Ai.getMyAxies({
-//    address: "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b",
-//    stage: 1
-//  }));
-  
-  
-//  var ss = SpreadsheetApp.getActive(),
-//      sheet = ss.getActiveSheet(),
-//      cell = sheet.getActiveCell(),
-//      manager = ss.getSheetByName("Manager");
-//  Logger.log(manager);
-//  Logger.log(manager.getRange("mainEthAddr").getA1Notation());
-  
-  
-//  var out = new Array()
-//  var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-//  for (var i=0 ; i<sheets.length ; i++) out.push( [ sheets[i].getName() ] );
-//  Logger.log(out);
-//  return out
-  
-//  var planName = "plan: tstPlan"
-//  Logger .log(planName.split(": "));
-};
 
 
 
@@ -174,6 +205,26 @@ function tst_scanForBabies(planName) {
   rng.refreshTrigger.setValue(Math.random(1, 10));
   return plan.getName();
 };
+
+
+
+
+
+/**
+//notes on form output
+//step1 sale, sorting, stage, class, pureness, region, title, mystic, num_mystic, parts
+first sampleof the form return.
+{AllORMine=true, sorting=latest_auction, name=, parts=[tail-fish-snack, , , ], pureness=3, mystic=1, id=, region=true, class=aquatic, tittle=}
+#2
+{stage=4, num_mystic=1, sorting=latest_auction, mineOrAll=true, name=, parts=, pureness=2, onSale=true, id=, region=true, title=, class=aquatic}
+#3 
+{stage=4, num_mystic=1, sorting=highest_price, mineOrAll=false, name=, parts=, pureness=2, id=, region=true, title=, class=bug}
+#4 with postip
+{sale=true, breedcount=, sorting=latest_auction, parts=[, , , , , ], name=, title=origin}
+#5 with all search param used:
+{mine=true, sale=true, stage=1, num_mystic=1, breedcount=3, sorting=latest_auction, pureness=1, parts=tail-nimo, name=dps4/4, region=true, title=origin, class=beast}
+*/
+
 
 /**
 [

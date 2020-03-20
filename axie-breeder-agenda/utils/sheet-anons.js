@@ -64,3 +64,29 @@ function symmetric2DArray_(ar){
   target.setValues(activities);
 //  Logger.log(sheet.getActiveRange().getValues());//.getA1Notation());
 }
+
+
+
+function countSheets(tag) {
+  var sheets = ss.getSheets(),
+      shtNames = [];
+  
+  for (var i= 0; i < sheets.length; i++) {
+    var shtName = sheets[i].getName();
+    if(shtName.indexOf(tag) >= 0) shtNames.push(shtName);
+  };
+  Logger.log("Pages that have been counted: "+ shtNames.join(", ")+ ".");
+  return shtNames.length;
+}
+
+
+
+function deleteHtmlElement_(element) {
+//  console.log("heres the element:", element);
+//      console.log("removing inner html");
+  element.innerHTML = "";
+//      console.log("removing element", element);
+  element.remove();
+  return;
+}
+

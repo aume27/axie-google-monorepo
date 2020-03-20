@@ -1,4 +1,8 @@
 /////////////////////////////////////Templates/////////////////////////////////////
+
+//just a list of parameter names to build objects and stuff in script.
+var axieSearchParams = ["offset", "display", "sale", "sorting", "stage", "class", "pureness", "region", "title", "mystic", "num_mystic", "part"];
+
 /**
 Templates for object to spreadsheet friendly arrays.
 turn an objects in and array

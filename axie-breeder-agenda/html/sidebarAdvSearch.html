@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    
+        <!---->
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower|Nanum+Pen+Script|Shadows+Into+Light+Two&display=swap" rel="stylesheet">
+    
+    <style> 
+      body{
+        padding: 10px;
+        background-color: #263547;
+        font-family: "Nanum Pen Script", "Shadows Into Light Two", "Indie Flower";
+        color: #fbbc04;
+        font-size: 18px;
+      }
+      label {
+        font-size: 20px;
+      }
+      
+      h1,h2,h3,h4 {text-align:center;}
+      
+      .inputText {
+        color: #6cc148;
+      }
+      
+    </style>
+    
+    
+    
+  </head>
+  <body>
+    
+    
+    
+    <h2 id="intro"> 
+      Details
+    </h2>
+    <ul id="details">
+        <li>All sections are optional. Entering no search option would result in canceling the search.</li>
+        <li>Search inventory will only search in your default Eth address defined in the manager sheet.</li>
+    </ul>
+    
+    <form onsubmit="handleFormSubmit(this)">
+    
+      <div class="inputBox">
+        <label>Search Inventory(Recommended) or Encyclopedia<br>
+          <label class="inputText" for="sInventory">Inventory</label>
+          <input type="radio" id="sInventory" name="mine" value="true">
+          
+          <label class="inputText" for="sEncyclopedia">Encyclopedia</label>
+          <input type="radio" id="sEncyclopedia" name="mine" value="">
+        </label>
+      </div>
+      <hr>
+      
+      
+      <div class="inputBox">
+        <label>On sale<br>
+          <input type="radio" id="onSale" name="sale" value="true"><label for="onSale">yes</label>
+          <input type="radio" id="notOnSale" name="sale" value="false"><label for="notOnSale">no</label>
+        </label>
+      </div>
+      
+      
+      <div class="inputBox">
+        <label for="sorting">Sorting<br>
+          <input type="radio" name="sorting" id="none" value=""><label class="inputText" for="none">none</label><br>
+          <input type="radio" name="sorting" id="latest_auction" value="latest_auction"><label class="inputText" for="latest_auction">latest_auction</label><br>
+          <input type="radio" name="sorting" id="lowest_price" value="lowest_price"><label class="inputText"for="lowest_price">lowest_price</label><br>
+          <input type="radio" name="sorting" id="highest_price" value="highest_price"><label class="inputText"for="highest_price">highest_price</label><br>
+          <input type="radio" name="sorting" id="lowest_id" value="lowest_id"><label class="inputText"for="lowest_id">lowest_id</label><br>
+          <input type="radio" name="sorting" id="highest_id" value="highest_id"><label class="inputText" for="highest_id">highest_id</label>
+        </label>
+      </div>
+      
+      
+      <div class="inputBox">
+        <label>Stage
+          <br>
+          <input type="radio" name="stage" id="stage1" value="1"><label class="inputText" for="stage1">1</label>
+          <input type="radio" name="stage" id="stage2" value="2"><label class="inputText" for="stage2">2</label>
+          <input type="radio" name="stage" id="stage3" value="3"><label class="inputText" for="stage3">3</label>
+          <input type="radio" name="stage" id="stage4" value="4"><label class="inputText" for="stage4">4</label>
+          <input type="radio" name="stage" id="allStage" value=""><label class="inputText" for="allStage">All</label>
+        </label>
+      </div>
+        
+
+      <div class="inputBox">
+        <label> Class<br>
+          <input type="radio" name="class" id="beast" value="beast"><label class="inputText" for="beast">beast</label>
+          <input type="radio" name="class" id="aquatic" value="aquatic"><label class="inputText" for="aquatic">aquatic</label>
+          <input type="radio" name="class" id="reptile" value="reptile"><label class="inputText" for="reptile">reptile</label>
+          <br>
+          <input type="radio" name="class" id="bug" value="bug"><label class="inputText" for="bug">bug</label>
+          <input type="radio" name="class" id="bird" value="bird"><label class="inputText" for="bird">bird</label>
+          <input type="radio" name="class" id="plant" value="plant"><label class="inputText" for="plant">plant</label>
+          <br>
+          <input type="radio" name="class" id="mech" value="mech"><label class="inputText" for="mech">mech</label>
+          <input type="radio" name="class" id="dawn" value="dawn"><label class="inputText" for="dawn">dawn</label>
+          <input type="radio" name="class" id="dusk" value="dusk"><label class="inputText" for="dusk">dusk</label>
+          <br>
+          <input type="radio" name="class" id="anyClass" value=""><label class="inputText" for="anyClas">Any</label>
+        </label>
+        <br>
+      </div>
+      
+      
+      <div class="inputBox">
+        <label>Pureness Lvl<br>
+          <input type="radio" name="pureness" id="anyPure" value=""><label class="inputText" for="anyPure">Any</label>
+          <input type="radio" name="pureness" id="pureness1" value="1"><label class="inputText" for="pureness1">1</label>
+          <input type="radio" name="pureness" id="pureness2" value="2"><label class="inputText" for="pureness2">2</label>
+          <input type="radio" name="pureness" id="pureness3" value="3"><label class="inputText" for="pureness3">3</label>
+          <input type="radio" name="pureness" id="pureness4" value="4"><label class="inputText" for="pureness4">4</label>
+          <input type="radio" name="pureness" id="pureness5" value="5"><label class="inputText" for="pureness5">5</label>
+          <input type="radio" name="pureness" id="pureness6" value="6"><label class="inputText" for="pureness6">6</label>
+        </label>
+
+      </div>
+
+
+      <div class="inputBox">
+        <label>Number of mystic parts<br>
+          <input type="radio" name="num_mystic" id="anyMist" value="1"><label class="inputText" for="anyMist">Any</label>
+          <input type="radio" name="num_mystic" id="mystic1" value="1"><label class="inputText" for="mystic1">1</label>
+          <input type="radio" name="num_mystic" id="mystic2" value="2"><label class="inputText" for="mystic2">2</label>
+          <input type="radio" name="num_mystic" id="mystic3" value="3"><label class="inputText" for="mystic3">3</label>
+          <input type="radio" name="num_mystic" id="mystic4" value="4"><label class="inputText" for="mystic4">4</label>
+          <input type="radio" name="num_mystic" id="mystic5" value="5"><label class="inputText" for="mystic5">5</label>
+          <input type="radio" name="num_mystic" id="mystic6" value="6"><label class="inputText" for="mystic6">6</label>
+        </label>
+      </div>
+      
+
+      <div class="inputBox">
+        <label for="region">Region</label><br>
+          <input type="checkbox" id="japan" name="region" value="true"><label class="inputText" for="japan">Japan</label>
+          <br>
+          <input type="checkbox" id="none" name="region" value=""><label class="inputText" for="none">none</label>
+      </div>
+      
+
+      <div class="inputBox">
+        <label for="title">Title</label>
+          <input type="text" id="title" name="title" placeholder="e.g: origin, meo%20corp">
+      </div>
+      
+
+      <div id="searchByPart" class="inputBox">
+        <label for="part"> Search by parts </label> 
+        <input type="button" id="addPart" name="addPart" value="Add part" onclick="addPartField();"><br>
+      </div>
+        
+     
+      <hr>
+      <div id="extraSearch"class="inputBox">
+        <h4>Extras</h4>
+        
+        <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Part of or full axie name(optional)">
+        <br>
+        
+        
+        <br>
+        <label for="breedCount">Breed count</label>
+          <input type="number" id="breedCount" name="breedCount" placeholder="Max input is 7.">
+        <br><br>
+      </div>
+      
+      <hr>
+      <div class="windowControl">
+        <input type="submit" value="Submit">
+        <input type="button" id="cancel" value="Cancel" onclick="google.script.host.close()"><br>
+      </div>
+    </form>
+    
+  </body>
+  <script>
+    function handleFormSubmit(formObject) {
+      function onSucces(e) {
+//        google.script.host.close(); 
+      }
+      
+      var runner = google.script.run.withSuccessHandler(onSucces)
+        .advSearch(formObject);
+      
+    }  
+
+    function setAttributes(element, attributes) {
+      for(var key in attributes) {
+        element.setAttribute(key, attributes[key]);
+      }
+    }// Source: https://stackoverflow.com/a/12274782/9588601
+    
+    function addPartField() {
+      let part2searchList = document.getElementById("searchByPart"),
+          listL = (part2searchList.childElementCount - 3); //ignore line breaks
+      console.log(listL);
+      if(listL >= 6) { console.log("Reach max part"); return; }
+      
+      const inputBox = document.createElement("div");
+      const inputF = document.createElement("INPUT");
+      setAttributes(inputF,{ 
+                             "type": "text",
+                             "id": "part",
+                             "name": "part",
+                             "placeholder": "e.g: tail-nimo"
+      });
+      
+      const closeFBtn = document.createElement("INPUT");
+      setAttributes(closeFBtn,{ 
+                             "type": "button",
+                             "class": "DIFB", //DIFB = delete input field button
+                             "value": "X",
+                             "onclick": "removeInputField(this);"
+      });
+      
+      
+      inputBox.appendChild(inputF);
+      inputBox.appendChild(closeFBtn);
+      part2searchList.appendChild(inputBox);
+      return;
+    }
+    
+    function removeInputField(selectedField) {
+      var box = selectedField.closest('div');
+      box.remove();
+    }
+    
+  </script>
+</html>
