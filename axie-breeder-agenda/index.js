@@ -75,7 +75,9 @@ var defaultProfile = rng.mainAddress.getValue(), //Ethereum address
 //(ONLY) if completion date cell is empty:
 //On edit check if pair gets checked as completed if yes save SLP cost, 
   // calculate SLP cost value in Base currency and save it. Then add completion date.
+function onEdit() {
 
+}
 
 // Reload/update plan sheet
 function updatePlan(planName) {
@@ -359,12 +361,11 @@ function advSearch(response) {
   if(sheet.getName().indexOf("Inv") <= -1) sheet = mainInventory;
   var invProfile = sheet.getRange("axieInvEthAddr").getValue(),
       ethAddr = !invProfile ? defaultProfile: invProfile,
-      p = JSON.parse(JSON.stringify(response)),
-      template = axieTemp2_;
+      p = JSON.parse(JSON.stringify(response));
   
   Logger.log("param");
   Logger.log(p);
-//  Logger.log(ethAddr);
+  //  Logger.log(ethAddr);
   
   //define where we search, all or user axies.
   
@@ -383,7 +384,7 @@ function advSearch(response) {
       setBreedCount = p.breedCount;
   
   
-
+  
   delete p.name;
   delete p.breedCount;
   cleanObj(p);
@@ -391,53 +392,73 @@ function advSearch(response) {
   Logger.log("param");
   Logger.log(p);
   //get base axie list
-  var axies = searchStep1(p),
-      totalFound = axies.totalAxies;
-  axies = axies.axies;
-  
-  Logger.log(axies);
-  
-  // Filter by breed count
-  if(setBreedCount) {
-    Logger.log("Checking breedcount:>")
-    Logger.log("  set breedcount:>")
-    Logger.log(setBreedCount)
-    var f1Axies = axies.filter(function (axie) {
-      return axie.breedCount === setBreedCount;
-    });
-  } else { var f1Axies = axies; };
-  Logger.log(f1Axies);
-  
-  
-  // Filter by name if requested
-  if(srchName) {
-    Logger.log("searching by name");
-    Logger.log("srchNAme");
-    Logger.log(srchName);
-    var f2Axies = axieSearchName(srchName, "", f1Axies, template),
-        searchResult = f2Axies;
-  } else { 
-    //Prepare axie data for spreadsheet. Done automatically when searching in names.
-    var searchResult = f1Axies.map(function(axie) {
-      return template(axie);
-    }); 
-  };
-  
-  
-  //If nothing found
-  if(!searchResult.length){
-    Logger.log("Nothing found");
-    searchResult = [["Nothing found with \""+ response.getResponseText()+ "\" in your axie inventory."]];
+  try {
+    var axies = searchStep1(p),
+        totalFound = axies.totalAxies;
+    axies = axies.axies;
+    
+    //  Logger.log(axies);
+    
+    // Filter by breed count
+    if(setBreedCount) {
+      Logger.log("Checking breedcount:>")
+      Logger.log("  set breedcount:>")
+      Logger.log(setBreedCount)
+      var f1Axies = axies.filter(function (axie) {
+        return axie.breedCount === setBreedCount;
+      });
+    } else { var f1Axies = axies; };
+    Logger.log("filtered 1")
+    Logger.log(f1Axies);
+    
+    
+    // Filter by name if requested
+    if(srchName) {
+      Logger.log("searching by name");
+      Logger.log("srchNAme");
+      Logger.log(srchName);
+      
+      var f2Axies = axieSearchName(srchName, undefined, f1Axies, axieTemp2_);
+      Logger.log(f2Axies);
+      var searchResult = f2Axies;
+      
+    } else { 
+      //Prepare axie data for spreadsheet. Done automatically when searching in names.
+      var searchResult = f1Axies.map(function(axie) {
+        return axieTemp2_(axie);
+      });
+      
+    };
+    
+    var dataRange = sheet.getDataRange();
+    Logger.log("Search results:");
+    Logger.log(searchResult);
+    
+    //If nothing found
+    if(!searchResult){
+      Logger.log("Nothing found with this search:");
+      Logger.log(response);
+      searchResult = ["", "Nothing found with search:\""+ JSON.stringify(response)+ "\" , in your axie inventory."];
+      
+      dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
+      sheet.appendRow(searchResult);
+      return;
+    }
+    
+    
+    
+    dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
+    dataRange.offset(2, 1, searchResult.length, searchResult[0].length).setValues(searchResult);
+    rng.refreshTrigger.setValue(Math.random(1, 10));
+    return;
+    
+  } catch(e) {
+    Logger.log("something went wrong!");
+    Logger.log(e);
+    SpreadsheetApp.getUi().alert("Something went wrong");
+    
+    return;
   }
-  
-  var dataRange = sheet.getDataRange();
-  Logger.log("Search results:");
-  Logger.log(searchResult);
-  
-  dataRange.offset(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();//clean sheet
-  dataRange.offset(2, 1, searchResult.length, searchResult[0].length).setValues(searchResult);
-  rng.refreshTrigger.setValue(Math.random(1, 10));
-  return;
 }
 
 
@@ -456,7 +477,7 @@ function searchAxiesByName(response) {
   Logger.log(searchResult);
   
   //If nothing found
-  if(!searchResult.length){
+  if(!searchResult){
     Logger.log("Nothing found");
     searchResult = [["Nothing found with \""+ response.getResponseText()+ "\" in your axie inventory."]];
   }

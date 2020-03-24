@@ -167,15 +167,32 @@ function axieSearchName(nameSearch, ethAddress, axieList, template, headTemplate
   var searchResult = [];
   
   if(ethAddress) {
-  var p = { address: ethAddress, offset: 0},
-      axies = pagination_(Ai.getMyAxies, p, "axies", "totalAxies", 12);
-      
-  } else if (!ethAddress && axieList) {
-      if (!Array.isArray(axieList)) Logger.log("Wrong axieList type, should provide an array of axie object"); return;
-      if (typeof(axieList[0]) !== "object") Logger.log("Wrong item type, should provide an array of axie object"); return;
-      
-      var axies = axieList;
+    Logger.log("searching through account.");
+    
+    var p = { address: ethAddress, offset: 0},
+        axies = pagination_(Ai.getMyAxies, p, "axies", "totalAxies", 12);
+    
+  } else if (axieList) {
+    Logger.log("searching through axie list.");
+  
+    if (!Array.isArray(axieList)) {
+      Logger.log("Wrong axieList type, should provide an array of axie object"); 
+      return new Error("Wrong axieList type, should provide an array of axie object");
+    }
+    if (typeof(axieList[0]) !== "object") {
+      Logger.log("Wrong item type, should provide an array of axie object"); 
+      return new Error("Wrong item type, should provide an array of axie object"); 
+    }
+    
+    var axies = axieList;
+  
+  } else {
+  
+    logger.log("something went wrong with axie source input.");
+    return new Error("something went wrong with axie source input.");
+  
   }
+  
   
   // Default template.
   if (!template) {
@@ -188,13 +205,18 @@ function axieSearchName(nameSearch, ethAddress, axieList, template, headTemplate
     }
   }
   
+  Logger.log("axie list aquired, template defined, starting filter");
+
+  //Format data.
   axies.forEach(function(axie) {
-        if(axie.name.indexOf(nameSearch) >= 0) {
-          searchResult.push(template(axie));
-        };
-      });
-  
+    if(axie.name.indexOf(nameSearch) >= 0) {
+      searchResult.push(template(axie));
+    };
+  });
   addHeader_(showHead, searchResult, headTemplate);
+  
+  Logger.log("Name search completed. Results:");
+  Logger.log(searchResult);
   return searchResult;
 };
 
