@@ -63,17 +63,25 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /////////////////////////////////////core-sheet-utils/////////////////////////////////////
+/*
+ @customfunction
+*/
+/** Notes
+- built as a "Two pager" script. Copy this file and "utils/anons-script".
+*/
+/////////////////////////////////////Globals/////////////////////////////////////
 
-//display prices properly.
+//display prices properly. adjust decimals
 var div = 1000000000000000000;
 
 //Set all functions to display header. to disable change it for false.
-var showHead = true,
-    timeZone = Session.getScriptTimeZone();
+var showHead = true;
 
 
 
-/////////////////Axies/////////////////
+
+
+/////////////////////////////////////Axies/////////////////////////////////////
 
 /**
  * Get Simgle Axie.
@@ -82,12 +90,45 @@ var showHead = true,
  * @param {number} axie the ID of the axie that you want data for.
  * @customfunction
  */
-function axieGetSingle(axie) {
-  var axStats = axieTemp_(getSingleAxie_(axie)),
+function axieSearchSingle(axie) {
+  
+  var axStats = axieTemp_(Ai.getSingleAxie(axie)),
       result = [axStats];
   
+  
   addHeader_(showHead, result, axieHeadTemp_());
-//  Logger.log(result)
+  
+  Logger.log(result)
+  return result;
+}
+
+
+
+/**
+ * Get Multiple Axies.
+ * Provide data about a defined list of axies.
+ *
+ * @param {number} axies This parametter is a restParam, just add more parametters separated by comas holding the different axie ids.
+ * @customfunction
+ */
+function axieSearchMultiple(axies) {
+  
+  var axieIds = new Array(),
+      result = new Array();
+  
+  if(arguments.length > 1) restParam_(1, arguments, axieIds);
+  else if (Array.isArray(axies)) axieIds = axies.join().split(",");     
+  
+  showHead = false;
+  
+  
+  axieIds.forEach(function(id) {
+    if(id) result.push(getSingleAxie(Number(id))[0]);
+    else result.push("");
+  });
+  
+  
+  Logger.log(result);
   return result;
 }
 
@@ -102,10 +143,9 @@ function axieGetSingle(axie) {
  *   add the stage and the class, search for 2 parts at a time not one.
  *
  * @param {number} offset The number of axies to skip.
+ * @param {number} display The number of axies to display.
  * @param {trigger} sale A trigger to indicate if you want only axies on sale or not. can be a number like 0 or 1, string like "yes" or true.
- * @param {trigger} siring A trigger to indicate if you want only axies on siring or not. can be a number like 0 or 1, string like "yes" or true.
  * @param {string} sorting The sorting rule you want, can be latest_auction, lowest_price, highest_price, lowest_id, highest_id.
- * @param {trigger} breedable Set as true or false. Filter only breedable axies or not.
  * @param {number} stage The stage number. 1 egg, 2 larva, 3 petite or 4 adult
  * @param {string} class Filter by a certain class.
  * @param {number} pureness Filter by number of parts of the same class on axie.
@@ -113,84 +153,46 @@ function axieGetSingle(axie) {
  * @param {string} title Filter by title like origin, meo%20corp.
  * @param {trigger} mystic Filter only mystic axies
  * @param {number} num_mystic Filter by number of mystic parts on axies
- * @param {string} parts Filter by parts. This parametter is a restParam, just add more parametters holding the different parts the axie must have.
- *                 e.g.:Skip params before parts with "". Then add multiple parts separated by comas.
- *                      =axieSearchEncyclopedia("", "", "", "", "", "", "", "", "", "", "", "", "horn-imp", "back-snail-shell", "tail-gerbil")
+ * @param {string} part Filter by parts. Add more inputs with the different parts the axie must have.
+ *                 e.g.:Skip params. Then add multiple parts separated by semicolon.
+ *                 =axieSearchEncyclopedia(""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; "horn-imp"; "back-snail-shell";...)
  * @customfunction
  */
-function axieSearchEncyclopedia(offset, sale, siring, sorting, breedable, stage, class, pureness, region, title, mystic, num_mystic, parts) {
-  var p = {},
-      partAr = [],
-      axies = [];
+function axieSearchEncyclopedia(offset, display, sale, sorting, stage, class, pureness, region, title, mystic, num_mystic, part) {
   
-  restParam_(13, arguments, partAr);
+  var argNum = 12,//number of parametters in thsi function. for custom rest param.
+      partAr = restParam_(argNum, arguments, []),
+      axies = new Array();
+  
   
   //Build parametter object
-  p.offset = offset ? offset: 0; //offset default to zero.
-  if(sale) p.sale = "yes"; //Show only axie for sale
-  if(siring) p.siring = "yes"; //Show only axie available for siring.
-  if(sorting) p.sorting = sorting;
-  if(breedable) p.breedable = "yes";
-  if(stage) p.stage = stage;
-  if(class) p.class = class;
-  if(pureness) p.pureness = pureness;
-  if(parts) p.part = partAr;
-  if(region) p.region = region;
-  if(title) p.title = title;
-  if(mystic) p.mystic = mystic;
-  if(num_mystic) p.num_mystic = num_mystic;
-  Logger.log(p);
+  offset = offset ? offset: 0; //offset default to zero.
+  
+  var p = argsToObj_(argNum, axieSearchParams, arguments);
+  
   
   //axie infinity return json off 12 axies at a time so i defaulted the pagination at 12.
-  Logger.log("starting pagination");
-  axies = pagination_(getAllAxies_, p, "axies", "totalAxies", 12, axieTemp_);
+  Logger.log("Starting pagination");
+  
+  axies = pagination_(Ai.getAllAxies, p, "axies", "totalAxies", 12, axieTemp_, display);
+  
   
   addHeader_(showHead, axies, axieHeadTemp_());
+  
   return symmetric2DArray_(axies);
 };
 
 
 
 /**
- * Get Multiple Axies.
- * Provide data about a defined list of axies.
- *
- * @param {number} axies This parametter is a restParam, just add more parametters separated by comas holding the different axie ids.
- * @customfunction
- */
-function axieGetMultiple(axies) {
-  var axieIds = [],
-      result = [];
-  
-  if(arguments.length > 1) {
-  restParam_(1, arguments, axieIds);
-    
-  } else if (Array.isArray(axies)) {
-        axieIds = axies.join().split(",");     
-  };
-  
-  showHead = false
-  axieIds.forEach(function(id) {
-    if(id) {
-    result.push(getSingleAxie_(Number(id))[0]);
-    } else { result.push(""); };
-  });
-  
-  return result;
-}
-
-
-
-/**
  * Get axies By Address.
- * Provide data about all axies for given ethereum address.
+ * Provide data about all axies for given ethereum address. All option are OPTIONAL
  *
  * @param {string} ethAddress ethereum address
  * @param {number} offset The number of axies to skip.
- * @param {trigger} sale A trigger to indicate if you want only axies on sale or not. can be a number like 0 or 1, string like "yes" or true.
- * @param {trigger} siring A trigger to indicate if you want only axies on siring or not. can be a number like 0 or 1, string like "yes" or true.
+ * @param {number} display Indicate how many axie to display.
+ * @param {trigger} sale A trigger to indicate if you want only axies on sale or not. e.g: a number like 0 or 1.
  * @param {string} sorting The sorting rule you want, can be latest_auction, lowest_price, highest_price, lowest_id, highest_id.
- * @param {trigger} breedable Set as true or false. Filter only breedable axies or not.
  * @param {number} stage The stage number. 1 egg, 2 larva, 3 petite or 4 adult
  * @param {string} class Filter by a certain class.
  * @param {number} pureness Filter by number of parts of the same class on axie.
@@ -198,37 +200,28 @@ function axieGetMultiple(axies) {
  * @param {string} title Filter by title like origin, meo%20corp.
  * @param {trigger} mystic Filter only mystic axies
  * @param {number} num_mystic Filter by number of mystic parts on axies
- * @param {string} parts Filter by parts. This parametter is a restParam, just add more parametters holding the different parts the axie must have.
- *                 e.g.:Skip params before parts with "". Then add multiple parts separated by comas.
- *                      =axieSearchEncyclopedia("", "", "", "", "", "", "", "", "", "", "", "", "horn-imp", "back-snail-shell", "tail-gerbil")
+ * @param {string} part Filter by parts. Add more inputs with the different parts the axie must have.
+ *                 e.g.:Skip params. Then add multiple parts separated by semicolon.
+ *                 =axieSearchEncyclopedia(""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; "horn-imp"; "back-snail-shell";...)
  * @customfunction
  */
-function axieGetByAddress(address, offset, sale, siring, sorting, breedable, stage, class, pureness, region, title, mystic, num_mystic, parts) {
-  var p = {},
-      partAr = [],
-      axies = [];
-    
-  restParam_(14, arguments, partAr);
+function axieSearchAddress(address, offset, display, sale, sorting, stage, class, pureness, region, title, mystic, num_mystic, part) {
+  
+  var argNum = 13,//number of parametters in thsi function. for custom rest param.
+      partAr = restParam_(argNum, arguments, []),
+      axies = new Array();
+
   
   //Build parametter object
-  if(address) p.address = address;
-  p.offset = offset ? offset: 0; //offset default to zero.
-  if(sale) p.sale = "yes"; //Show only axie for sale
-  if(siring) p.siring = "yes"; //Show only axie available for siring.
-  if(sorting) p.sorting = sorting;
-  if(breedable) p.breedable = "yes";
-  if(stage) p.stage = stage;
-  if(class) p.class = class;
-  if(pureness) p.pureness = pureness;
-  if(parts) p.part = partAr;
-  if(region) p.region = region;
-  if(title) p.title = title;
-  if(mystic) p.mystic = mystic;
-  if(num_mystic) p.num_mystic = num_mystic;
+  offset = offset ? offset: 0; //offset default to zero.
+  
+  axieSearchParams.unshift("address");
+  
+  var p = argsToObj_(argNum, axieSearchParams, arguments);
   
   //axie infinity return json off 12 axies at a time so i defaulted the pagination at 12.
   Logger.log("starting pagination");
-  axies = pagination_(getMyAxies_, p, "axies", "totalAxies", 12, axieTemp_);
+  axies = pagination_(Ai.getMyAxies, p, "axies", "totalAxies", 12, axieTemp_, display);
   
   addHeader_(showHead, axies, axieHeadTemp_());
   return symmetric2DArray_(axies);
@@ -242,31 +235,70 @@ function axieGetByAddress(address, offset, sale, siring, sorting, breedable, sta
  *
  * @param {string} nameSearch The string to search for in your axies name.
  * @param {string} ethAddress Address to import the axies from.
+ * @param {array} Src2axieList Use in script to input an array of axie objects.
+ * 
+ * @return A array of axies.
  * @customfunction
  */
-function axieSearchByName(nameSearch, ethAddress, template, headTemplate) {
-  var p = { address: ethAddress, offset: 0},
-      axies = pagination_(getMyAxies_, p, "axies", "totalAxies", 12),
-      searchResult = [];
+function axieSearchName(nameSearch, Src1ethAddr, Src2axieList, template, headTemplate) {
+  var searchResult = [];
+  
+  if(Src1ethAddr) {
+    Logger.log("searching through account.");
+    
+    var p = { address: Src1ethAddr, offset: 0},
+        axies = pagination_(Ai.getMyAxies, p, "axies", "totalAxies", 12);
+    
+  } else if (axieList) {
+    
+    Logger.log("searching through axie list.");
+    if (!Array.isArray(axieList)) {
+      
+      Logger.log("Wrong axieList type, should provide an array of axie object"); 
+      return new Error("Wrong axieList type, should provide an array of axie object");
+    }
+    
+    if (typeof(axieList[0]) !== "object") {
+      
+      Logger.log("Wrong item type, should provide an array of axie object"); 
+      return new Error("Wrong item type, should provide an array of axie object"); 
+    }
+    
+    var axies = axieList;
+  } else {
+  
+    logger.log("something went wrong with axie source input.");
+    return new Error("something went wrong with axie source input.");
+  }  
   
   // Default template.
   if (!template) {
+    
     template = axieTemp_;
+    
     headTemplate = axieHeadTemp_();
   } else { //defined template
+    
     if(!headTemplate) { //headerless template.
+      
       headTemplate = "";
+      
       showHead = false;
     }
   }
   
+  Logger.log("axie list aquired, template defined, starting filter");
+
+  //Format data.
   axies.forEach(function(axie) {
-        if(axie.name.indexOf(nameSearch) >= 0) {
-          searchResult.push(template(axie));
-        };
-      });
+    if(axie.name.indexOf(nameSearch) >= 0) searchResult.push(template(axie));
+  });
+  
   
   addHeader_(showHead, searchResult, headTemplate);
+
+  Logger.log("Name search completed");
+  Logger.log(searchResult);
   return searchResult;
 };
 
@@ -275,11 +307,13 @@ function axieSearchByName(nameSearch, ethAddress, template, headTemplate) {
 /**
  * Get account total axies.
  * 
- * @param {string} ethAddress Your ethereum address
+ * @param {string} ethAddress An ethereum address.
+ *
+ * @return {number} Total axie count by ethereum address.
  * @customfunction
  */
-function axieAddressCount(ethAddress) {
-  return getMyAxies_({address: ethAddress}).totalAxies;
+function axieTotalByAddress(ethAddress) {
+  return Ai.getMyAxies({address: ethAddress}).totalAxies;
 };
 
 
@@ -290,31 +324,114 @@ function axieAddressCount(ethAddress) {
  * @param {string} ethAddress ethereum address
  * @customfunction
  */
-function axieSmallLovePCount(ethAddress) {
-  return getSmallLoveP_(ethAddress).total;
+function axieTotalAddressSLP(ethAddress) {
+  return Ai.getSmallLoveP(ethAddress).total;
 }
 
 /**
  * get Body Parts
  * Provide data about all body-parts
- *
+ * 
+ * @return {array} List of all parts.
  * @customfunction
  */
-function axieBodyParts() {
-  var parts = [],
-      response = getBodyParts_();
+function axieGetBodyParts() {
+  
+  var parts = new Array(),
+      response = Ai.getBodyParts();
+  
   
   response.forEach(function(part) {
     parts.push(bodyTemp_(part));
-  })
+  });
+  
   
   addHeader_(showHead, parts, bodyHeadTemp_());
+  
   return symmetric2DArray_(parts);
 };
 
+/////////////////////////////////////Axies markets/////////////////////////////////////
 
 
-/////////////////Battles/////////////////
+/** 
+ * Get axies floor price (Default).
+ * @customfunction
+ */
+function axiePriceFloor() {
+  
+  var stage = 4,
+      p = {offset: 0, sale: "true", sorting: "lowest_price", stage: stage},
+      cheapestAxieValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
+  
+  return Number(cheapestAxieValue).toFixed(4);
+}
+
+
+/** 
+ * Get petite floor price.
+ * @customfunction
+ */
+function axiePricePetiteFloor() {
+  
+  var stage = 3,
+      p = {offset: 0, sale: "true", sorting: "lowest_price", stage: stage},
+      cheapestPetiteValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
+  
+  return Number(cheapestPetiteValue).toFixed(4);
+}
+
+
+/** 
+ * Get  virgin axie floor price.
+ * @customfunction
+ */
+function axiePriceVirginFloor() {
+  
+  function virginOnly(a) { if(a.breedCount === 0) return a };
+  
+  function clearEmptyVals(n) { return n !== "" }; 
+  
+  var virgins = pagination_(Ai.getAllAxies, {offset: 0, sale: "true", sorting: "lowest_price", stage: 4}, "axies", "totalAxies", 12, virginOnly),
+      cheapestVirgin = virgins.filter(clearEmptyVals)[0], //get cheapest adult virgin
+      cheapestVirginValue = (cheapestVirgin.auction.buyNowPrice / div);
+ 
+  return Number(cheapestVirginValue).toFixed(4); 
+}
+
+
+/** 
+ * Get floor price for special axies
+ * works only for 1part_mystic, title(origin, meo%20corp), region(japan)
+ * 
+ * @param {string} propValue Value of the property to search by. e.g:
+ *                           mystic, origin, meo%20corp, japan.
+ * @param {string} propertyN Name of the property to search by. Leave empty for mystic and origin. e.g:
+ *                           title, region.
+ * @customfunction
+ */
+function axiePriceSpecial(propValue, propertyN) {
+  
+  var stage = 4,
+      p = {offset: 0, sale: "true", sorting: "lowest_price", stage: stage};
+  
+  //default query.
+  if(!propValue || propValue === "origin") p.title ="origin";
+  else if(propValue === "mystic") p.num_mystic = 1;
+  else p[propertyN] = propValue;
+   
+  
+  var cheapestAxieValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
+  
+  return Number(cheapestAxieValue).toFixed(4);
+}
+
+
+
+
+
+/////////////////////////////////////Battles/////////////////////////////////////
+
 /**
  * Check charm
  * Allows to get data about charm (Bean's Blessing) for given ETH Address.
@@ -324,31 +441,36 @@ function axieBodyParts() {
  * @customfunction
  */
 function axieBtlCharm(ethAddress) {
-  return getCharm_(ethAddress).isCharmActivated;
+  return Ai.getCharm(ethAddress).isCharmActivated;
 };
 
 
 
 /**
- * Activity Points.
+ * Activity Points:
  * Allows to get data about activity points for given Axies. Can request multiple ID's at once.
  *
  * @param {number} axies This parametter is a restParam, just add more parametters separated by comas holding the different axie ids.
  * @customfunction
  */
 function axieBtlActivityPoints(axies) { //can also use array of ids when used in google-app-script.
-  var arr = [],
-      result = [];
+  
+  var arr = new Array(),
+      result = new Array();
   
   restParam_(1, arguments, arr);
   Logger.log(arr);
-  var response = getActivityPoints_(arr);
+  
+  
+  var response = Ai.getActivityPoints(arr);
   
   response.forEach(function(axie) {
     result.push([axie.axieId, axie.activityPoint]);
   });
   
+  
   addHeader_(showHead, result, ["Axie id", "Activity points"]);
+  
   return symmetric2DArray_(result);
 };
 
@@ -362,8 +484,9 @@ function axieBtlActivityPoints(axies) { //can also use array of ids when used in
  * @customfunction
  */
 function axieBtlLeaderboard(ethAddress) {
-  var response = getLboard_(ethAddress),
-      result = [];
+  
+  var response = Ai.getLboard(ethAddress),
+      result = new Array();
   
   response.forEach(function(user){
     result.push(lboardTemp_(user));
@@ -386,22 +509,29 @@ function axieBtlLeaderboard(ethAddress) {
  * @customfunction
  */
 function axieGetMyTeams(ethAddress, count, offset, no_limit) {
-  var p = {},
-      result = [];
+
+  var p = new Object(),
+      result = new Array();
   
   //Build parametter object
   if(ethAddress) p.address = ethAddress;
+  
   p.count = count ? count: 1000; //offset default to zero.
+  
   p.offset = offset ? offset: 0; //offset default to zero.
+  
   if(no_limit) p.no_limit = no_limit;
     
-  var response = getTeams_(p);
+  var response = Ai.getTeams(p);
+  
   
   response.teams.forEach(function(team) {
     result.push(teamTemp_(team));
   });
   
+  
   addHeader_(showHead, result, teamHeadTemp_());
+  
   return symmetric2DArray_(result);
 };
 
@@ -415,19 +545,23 @@ function axieGetMyTeams(ethAddress, count, offset, no_limit) {
  * @customfunction
  */
 function axieGetTeam(teamId) {
-    var result = [],
-        response = getTeam_(teamId);
   
+    var result = [],
+        response = Ai.getTeam(teamId);
   
   result.push(teamTemp_(response));
-  
+    
   addHeader_(showHead, result, teamHeadTemp_());
+  
   return result;
 };
 
 
 
-/////////////////Lunancia/////////////////
+
+
+/////////////////////////////////////Lunancia/////////////////////////////////////
+
 /**
  * Marketplace
  * Allows to get data about items on land marketplace.
@@ -441,8 +575,10 @@ function axieGetTeam(teamId) {
  * @customfunction
  */
 function axieLandMarket(offset, count, sorting, search, type, rarity) {
+  
   var p = {},
       result = [];
+  
   
   p.offset = offset ? offset: 0; //offset default to zero.
   if(count) p.count = count;
@@ -452,9 +588,10 @@ function axieLandMarket(offset, count, sorting, search, type, rarity) {
   if(rarity) p.rarity = rarity;
   
   Logger.log(p)
-  var response = getMarket_(p);
+  var response = Ai.getMarket(p);
   
-  response.results.forEach(function(e) {    
+  response.results.forEach(function(e) {
+    
     if(e.assetType === "land") {
       result.push(landTemp_(e));
     } else if(e.assetType === "item") {
@@ -482,8 +619,10 @@ function axieLandMarket(offset, count, sorting, search, type, rarity) {
  * @customfunction
  */
 function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
+  
   var p = {},
       result = [];
+  
   
   p.offset = offset ? offset: 0; //offset default to zero.
   if(count) p.count = count;
@@ -492,14 +631,13 @@ function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
   if(type) p.type = type;
   if(rarity) p.rarity = rarity;
   
-  var response = getMarketBundles_(p);
+  var response = Ai.getMarketBundles(p);
+  Logger.log(response);
   
   if(showHead) result = bundleHeadTemp_();
   
   response.results.forEach(function(bundle) {
-
     result = bundleTemp_(bundle, result);
-    Logger.log(result)
   });
   
   Logger.log(response.total);
@@ -509,7 +647,9 @@ function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
 
 
 
-/////////////////Others/////////////////
+
+
+/////////////////////////////////////Others/////////////////////////////////////
 
 /**
  * Breeding Calculator
@@ -519,9 +659,10 @@ function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
  * @param {number} matronId
  * @customfunction
  */
-function axieFreakCalcUrl(sireId, matronId) {
+function axiePrintFreakCalcUrl(sireId, matronId) {
   return ("https://freakitties.github.io/axie/calc.html?sireId="+ sireId+ "&matronId="+ matronId);
 }
+
 
 
 /**
@@ -537,23 +678,25 @@ function axieFreakCalcUrl(sireId, matronId) {
 function axieCheckBreedable(axie1,axie2, ethAddress, lovePTotal) {
   
   if(typeof(axie1) === "object") {
+    
     var ax1 = axie1,
         ax2 = axie2;
+    
   } else if(typeof(axie1) === "number") {
-    var ax1 = getSingleAxie_(axie1),
-        ax2 = getSingleAxie_(axie2);
+    
+    var ax1 = Ai.getSingleAxie(axie1),
+        ax2 = Ai.getSingleAxie(axie2);
   };
+  
   if(ax.stage <4) return false;
+  
   
   var ax1BC = ax1.breedCount,
       ax2BC = ax2.breedCount;
   
-  if(typeof(lovePTotal) === "number") {
-    var lpt = lovePTotal;
-  } else if(!lovePTotal) {
-    var lpt = getSmallLoveP_(ethAddress) 
-  }
-  
+  if(typeof(lovePTotal) === "number")  var lpt = lovePTotal;
+  else if(!lovePTotal) var lpt = Ai.getSmallLoveP(ethAddress);
+
   var lpCost = (axieCountLPCost(ax1BC) + axieCountLPCost(ax2BC));
   
   if(lpCost <= lpt) return true;
@@ -571,37 +714,35 @@ function axieCheckBreedable(axie1,axie2, ethAddress, lovePTotal) {
  * @param {number} lovePTotal Your total number of potion.
  * @customfunction
  */
-function axieSimpleCheckBreedable(brdCntAx1, brdCntAx2, lovePTotal) {
-  if (typeof(brdCntAx1) !== "number" || typeof(brdCntAx2) !== "number") {
-    return "";
-  }
+function axieCheckBreedableSimple(brdCntAx1, brdCntAx2, lovePTotal) {
   
+  if (typeof(brdCntAx1) !== "number" || typeof(brdCntAx2) !== "number") return "";
+ 
   var lpCost = axieCountLPTC(brdCntAx1, brdCntAx2);
   
-  if(lpCost <= lovePTotal) {
-    return true;
-  } else {
-    return false;
-  }
+  if(lpCost <= lovePTotal) return true;
+  else return false;
 };
 
 
 
 /**
  * Count total potion required for 2 axies to breed.
+ * LPTC = Love Potion Total Cost
  * 
  * @param {number} brdCntAx1 The BreedCount of the sire to check.
  * @param {number} brdCntAx2 The BreedCount of the matron to check.
  * @customfunction
  */
 function axieCountLPTC(brdCntAx1, brdCntAx2) {
-  if (typeof(brdCntAx1) !== "number" || typeof(brdCntAx2) !== "number") {
-    return "";
-  };
-  var lpCost = (axieCountLPCost(brdCntAx1) + axieCountLPCost(brdCntAx2));
-  return lpCost;
+  
+  if(validateN_(brdCntAx1) && validateN_(brdCntAx2)) {
+    
+    var lpCost = (axieCountLPCost(brdCntAx1) + axieCountLPCost(brdCntAx2));
+    return lpCost;
+  } 
+  else return "";
 };
-
 
 
 /**
@@ -611,25 +752,34 @@ function axieCountLPTC(brdCntAx1, brdCntAx2) {
  * @customfunction
  */
 function axieCountLPCost(breedcount) {
+  
   var pc = 0; //potion cost
+  
   if(breedcount < 1) {
     pc += 100;
+    
   } else if(breedcount < 2) {
     pc += 200;
+    
   } else if(breedcount < 3) {
     pc += 300;
+    
   } else if(breedcount < 4) {
     pc += 500;
+    
   } else if(breedcount < 5) {
     pc += 800;
+    
   } else if(breedcount < 6) {
     pc += 1300;
+    
   } else if(breedcount < 7) {
     pc += 2100;
   };
   
   return pc;
 };
+
 
 
 
@@ -710,7 +860,7 @@ var param_err_ethAdrr = "You must provide a valid ethereum address as a string. 
 
 
 
-/////////////////Utils/////////////////
+/////////////////////////////////////Utils/////////////////////////////////////
 
 /**
  * Rest parametter
@@ -742,12 +892,13 @@ function restParam_(maxParam, args, containerArray) {
 * @return {string} query string to append at the end of an uri.
 */
 function obj2queryStr_(obj, start) {
+//  Logger.log("converting object to query string.");
   var queryS = "";
   
   if(obj) {
     //parametters properties
     var props = Object.keys(obj);
-    //    Logger.log(props);
+//    Logger.log(props);
     if(start) {
       if(Array.isArray(obj[props[0]])) {
         queryS += ("?" +props[0] +"=" +obj[props[0]][0]);
@@ -756,7 +907,7 @@ function obj2queryStr_(obj, start) {
         obj[props[0]].forEach(function(value) {
           queryS += ("&" +props[0] +"=" + value);
           
-          //      Logger.log(url);
+          //      Logger.log(queryS);
           return queryS;
         });
       } else {
@@ -773,17 +924,18 @@ function obj2queryStr_(obj, start) {
           obj[prop].forEach(function(value) {
             queryS += ("&" +prop +"=" + value);
             
-            //      Logger.log(url);
+            //      Logger.log(queryS);
             return queryS;
           });
         } else {
           queryS += ("&" +prop +"=" +obj[prop]);
         };
-        //      Logger.log(url);
+        //      Logger.log(queryS);
         return queryS;
       });
     };
   };
+//  Logger.log(queryS);
   return queryS;
 };
 
@@ -807,7 +959,7 @@ function pubReq_(url) {
       },
       result = UrlFetchApp.fetch(url, params),
       response = JSON.parse(result.getContentText());
-
+    
     return response;
 
   } catch(e) {
@@ -817,7 +969,7 @@ function pubReq_(url) {
 };
 
 
-/////////////////Axies/////////////////
+/////////////////////////////////////Axies/////////////////////////////////////
 
 /**
  * get Simgle Axie
@@ -826,9 +978,9 @@ function pubReq_(url) {
  * @param {number} axie the ID of the axie that you want data for.
  * @return {object} response with an array of all axies in obj.axies
  */
-function getSingleAxie_(axie) {
+function getSingleAxie(axie) {
 
-  if (typeof(axie) !== "number") {
+  if (!axie || isNaN(axie)) {
     return "getSingle() error.\n You must provide a valide AXIE_ID. E.g. 27777 as a number.";
   };
 
@@ -849,7 +1001,7 @@ function getSingleAxie_(axie) {
  * @param {number} axies the list of ID.Each id as a param or an array of id.
  * @return {array} response an array of object by axie.
  */
-function getMultiAxies_(axies) {
+function getMultiAxies(axies) {
   var axieIds = [],
       result = [];
   if(arguments.length > 1) {
@@ -883,7 +1035,7 @@ function getMultiAxies_(axies) {
  *        sorting by parts, breeadable or not, etc.
  * @return {object} response with an array of all axies in obj.axies
  */
-function getAllAxies_(p) {
+function getAllAxies(p) {
   var url = (um_.rv2 +um_.ax.axies),
       start = true;
 
@@ -909,7 +1061,7 @@ function getAllAxies_(p) {
  *
  * @return {array} response: an array of all parts as objects.
  */
-function getBodyParts_() {
+function getBodyParts() {
   var url = um_.rv2 +um_.ax.bodyPrts,
       request = url;
       response = pubReq_(request);
@@ -930,7 +1082,7 @@ function getBodyParts_() {
  *
  * @return {object} containing an array of all axies and their data.
  */
-function getMyAxies_(p) {
+function getMyAxies(p) {
 
   //safe checks:
   if (!p.address || typeof(p.address) !== "string") {
@@ -960,7 +1112,7 @@ function getMyAxies_(p) {
  *
  * @return {object} response object.
  */
-function getSmallLoveP_(ethAddress) {
+function getSmallLoveP(ethAddress) {
 
   //safe checks.
   if (!ethAddress || typeof(ethAddress) !== "string") {
@@ -979,7 +1131,7 @@ function getSmallLoveP_(ethAddress) {
 
 
 
-/////////////////Battles/////////////////
+/////////////////////////////////////Battles/////////////////////////////////////
 /**
  * Check charm
  * Allows to get data about charm (Bean's Blessing) for given ETH Address.
@@ -988,7 +1140,7 @@ function getSmallLoveP_(ethAddress) {
  *
  * @return {object} response object.
  */
-function getCharm_(ethAddress) {
+function getCharm(ethAddress) {
 
   //safe checks.
   if (!ethAddress || typeof(ethAddress) !== "string") {
@@ -1013,10 +1165,10 @@ function getCharm_(ethAddress) {
  *
  * @return {array} an array containing object by axie.
  */
-function getActivityPoints_(axies) {
+function getActivityPoints(axies) {
 
   //safe checks.
-  if(!Array.isArray(axies) && typeof(axies) !== "number") {
+  if(!Array.isArray(axies) && isNaN(axies)) {
     return "getActivityPoints() error.\nYou must provide a valide axie Id as a number or an array of axie IDs, e.g. 27706 or [ ..., 27706, 27777].";
   };
 
@@ -1052,7 +1204,7 @@ function getActivityPoints_(axies) {
  *
  * @return {array} array cointaining object by profile.
  */
-function getLboard_(ethAddress) {
+function getLboard(ethAddress) {
 
   //safe checks
   if (ethAddress && typeof(ethAddress) !== "string") {
@@ -1080,7 +1232,7 @@ function getLboard_(ethAddress) {
  *
  * @return {object} response object.
  */
-function getBattleProfile_(ethAddress) {
+function getBattleProfile(ethAddress) {
 
   //safe checks
   if (!ethAddress || typeof(ethAddress) !== "string") {
@@ -1110,7 +1262,7 @@ function getBattleProfile_(ethAddress) {
  *
  * @return {object} response object.
  */
-function getTeams_(p) {
+function getTeams(p) {
 
   //safe checks
   if (!p.address || typeof(p.address) !== "string") {
@@ -1143,7 +1295,7 @@ function getTeams_(p) {
  *
  * @return {object} response object.
  */
-function getTeam_(teamID) {
+function getTeam(teamID) {
 
   //safe checks
   if (!teamID || typeof(teamID) !== "string") {
@@ -1161,14 +1313,14 @@ function getTeam_(teamID) {
 
 
 
-/////////////////Lunancia/////////////////
+/////////////////////////////////////Lunancia/////////////////////////////////////
 /**
  * Remaining Chests:
  * Allows to get data about remaining chests in land presale.
  *
  * @return {object}
  */
-function getChests_() {
+function getChests() {
   var url = (um_.r +um_.land.chests),
       request = url,
       response = pubReq_(request);
@@ -1186,7 +1338,7 @@ function getChests_() {
  * @param {object} p query params object
  * @return {object}
  */
-function getMarket_(p) {
+function getMarket(p) {
   var url = (um_.r +um_.land.market),
       queryStr = obj2queryStr_(p, true),
       request = (url +queryStr),
@@ -1204,7 +1356,7 @@ function getMarket_(p) {
  * @param {object} p query params object
  * @return {object}
  */
-function getMarketBundles_(p) {
+function getMarketBundles(p) {
   var url = um_.r +um_.land.market +"/bundles",
     queryStr = obj2queryStr_(p, true),
       request = url +queryStr,
@@ -1216,7 +1368,13 @@ function getMarketBundles_(p) {
 
 
 
+
+
 /////////////////////////////////////Templates/////////////////////////////////////
+
+//just a list of parameter names to build objects and stuff in script.
+var axieSearchParams = ["offset", "display", "sale", "sorting", "stage", "class", "pureness", "region", "title", "mystic", "num_mystic", "part"];
+
 /**
 Templates for object to spreadsheet friendly arrays.
 turn an objects in and array
@@ -1249,7 +1407,7 @@ var axieTemp_ = function(a) {
   //Base axie data
   if(a.stage < 3) {
     //stage 1 egg and 2 larva
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://axieinfinity.com/axie/'+ a.id), a.name, "",
+    axStats = [ a.image , ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, "",
                a.title, a.stage, a.level, "", "", "" , "", "", "", "",
                "", "", "",
                "", "", "",
@@ -1257,12 +1415,12 @@ var axieTemp_ = function(a) {
                "", "", "", "", "", "", "", "", "", 
                "", "", "", "", "", "", "", "", "", 
                "", "", "", "", "", "", "", "", "",
-               ('https://axieinfinity.com/profile/'+ a.owner), ('https://axieinfinity.com/axie/'+ a.sireId), ('https://axieinfinity.com/axie/'+ a.matronId),
+               ('https://marketplace.axieinfinity.com/profile/'+ a.owner), ('https://marketplace.axieinfinity.com/axie/'+ a.sireId), ('https://marketplace.axieinfinity.com/axie/'+ a.matronId),
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   } else if(a.stage < 4) {
     
     //stage 3 petite and 4 adult
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://axieinfinity.com/axie/'+ a.id), a.name, a.class,
+    axStats = [ a.image , ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
                a.title, a.stage, a.level, "", false, "",
                a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale,
                a.parts[0].name, a.parts[0].class, a.parts[0].stage,
@@ -1271,11 +1429,11 @@ var axieTemp_ = function(a) {
                a.parts[3].name, a.parts[3].class, a.parts[3].stage, a.parts[3].moves[0].name, a.parts[3].moves[0].type, a.parts[3].moves[0].attack, a.parts[3].moves[0].defense, a.parts[3].moves[0].accuracy, addEffect(a, 3),
                a.parts[4].name, a.parts[4].class, a.parts[4].stage, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
                a.parts[5].name, a.parts[5].class, a.parts[5].stage, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5),
-               ('https://axieinfinity.com/profile/'+ a.owner), ('https://axieinfinity.com/axie/'+ a.sireId), ('https://axieinfinity.com/axie/'+ a.matronId),
+               ('https://marketplace.axieinfinity.com/profile/'+ a.owner), ('https://marketplace.axieinfinity.com/axie/'+ a.sireId), ('https://marketplace.axieinfinity.com/axie/'+ a.matronId),
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   } else {
     //Stage 4 adult
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://axieinfinity.com/axie/'+ a.id), a.name, a.class,
+    axStats = [ a.image , ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
                a.title, a.stage, a.level, a.exp, a.breedable, a.breedCount,
                a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale,
                a.parts[0].name, a.parts[0].class, a.parts[0].stage,
@@ -1284,12 +1442,55 @@ var axieTemp_ = function(a) {
                a.parts[3].name, a.parts[3].class, a.parts[3].stage, a.parts[3].moves[0].name, a.parts[3].moves[0].type, a.parts[3].moves[0].attack, a.parts[3].moves[0].defense, a.parts[3].moves[0].accuracy, addEffect(a, 3),
                a.parts[4].name, a.parts[4].class, a.parts[4].stage, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
                a.parts[5].name, a.parts[5].class, a.parts[5].stage, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5),
-               ('https://axieinfinity.com/profile/'+ a.owner), ('https://axieinfinity.com/axie/'+ a.sireId), ('https://axieinfinity.com/axie/'+ a.matronId),
+               ('https://marketplace.axieinfinity.com/profile/'+ a.owner), ('https://marketplace.axieinfinity.com/axie/'+ a.sireId), ('https://marketplace.axieinfinity.com/axie/'+ a.matronId),
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   };
   //additional contextual data:
   if(a.auction) {
     axStats.push(a.auction.type, a.auction.buyNowPrice /div, a.auction.endingPrice /div, Number(a.auction.timeLeft/86400).toFixed(2));
+  };
+  return axStats;
+};
+
+
+     //template for Axie invetory sheet in Breeding planner Spreadsheet 
+var axieTemp2_ = function(a) {
+  var axStats = [];
+  
+  function addEffect(axie, partIndex) {
+    if(axie.parts[partIndex].moves[0].effects[0]) {
+      return (axie.parts[partIndex].moves[0].effects[0].name +", " +axie.parts[partIndex].moves[0].effects[0].description);
+    } else return "";
+  };
+  
+  //Base axie data
+  if(a.stage < 3) {//stage 1 egg and 2 larva
+    axStats = [('=IMAGE(\"' +a.image +'\"; 1)'), ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\"; '+a.id+ ')'), a.name, "",
+               "", "", "", "", "", "", "", "", (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
+               "", "",
+               "", "",
+               "", "", "", "", "", "", "", "",
+               "", "", "", "", "", "", "", "",
+               "", "", "", "", "", "", "", "",
+               "", "", "", "", "", "", "", ""];
+  } else if(a.stage < 4) {//stage 3 petite and 4 adult
+    axStats = [('=IMAGE(\"' +a.image +'\"; 1)'), ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\"; '+a.id+ ')'), a.name, a.class,
+               a.title, a.level, "", "", a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale, (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
+               a.parts[0].name, a.parts[0].class,
+               a.parts[1].name, a.parts[1].class,
+               a.parts[2].name, a.parts[2].class, a.parts[2].moves[0].name, a.parts[2].moves[0].type, a.parts[2].moves[0].attack, a.parts[2].moves[0].defense, a.parts[2].moves[0].accuracy, addEffect(a, 2),
+               a.parts[3].name, a.parts[3].class, a.parts[3].moves[0].name, a.parts[3].moves[0].type, a.parts[3].moves[0].attack, a.parts[3].moves[0].defense, a.parts[3].moves[0].accuracy, addEffect(a, 3),
+               a.parts[4].name, a.parts[4].class, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
+               a.parts[5].name, a.parts[5].class, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5)];
+  } else {//Stage 4 adult
+    axStats = [('=IMAGE(\"' +a.image +'\"; 1)'), ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\"; '+a.id+ ')'), a.name, a.class,
+               a.title, a.level, a.exp, a.breedCount, a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale, (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
+               a.parts[0].name, a.parts[0].class,
+               a.parts[1].name, a.parts[1].class,
+               a.parts[2].name, a.parts[2].class, a.parts[2].moves[0].name, a.parts[2].moves[0].type, a.parts[2].moves[0].attack, a.parts[2].moves[0].defense, a.parts[2].moves[0].accuracy, addEffect(a, 2),
+               a.parts[3].name, a.parts[3].class, a.parts[3].moves[0].name, a.parts[3].moves[0].type, a.parts[3].moves[0].attack, a.parts[3].moves[0].defense, a.parts[3].moves[0].accuracy, addEffect(a, 3),
+               a.parts[4].name, a.parts[4].class, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
+               a.parts[5].name, a.parts[5].class, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5)]; 
   };
   return axStats;
 };
@@ -1327,9 +1528,9 @@ var teamHeadTemp_ = function() {
 };
 var teamTemp_ = function(a) {
   return ['https://axieinfinity.com/team/' +a.teamId, a.owner, a.teamId, a.name, 
-          'https://axieinfinity.com/axie/'+ a.teamMembers[0].axieId, a.teamMembers[0].moveSet[0].part, a.teamMembers[0].moveSet[1].part, a.teamMembers[0].moveSet[2].part, a.teamMembers[0].moveSet[3].part, a.teamMembers[0].position, 
-          'https://axieinfinity.com/axie/'+ a.teamMembers[1].axieId, a.teamMembers[1].moveSet[0].part, a.teamMembers[1].moveSet[1].part, a.teamMembers[1].moveSet[2].part, a.teamMembers[1].moveSet[3].part, a.teamMembers[1].position, 
-          'https://axieinfinity.com/axie/'+ a.teamMembers[2].axieId, a.teamMembers[2].moveSet[0].part, a.teamMembers[2].moveSet[1].part, a.teamMembers[2].moveSet[2].part, a.teamMembers[2].moveSet[3].part, a.teamMembers[2].position];
+          'https://marketplace.axieinfinity.com/axie/'+ a.teamMembers[0].axieId, a.teamMembers[0].moveSet[0].part, a.teamMembers[0].moveSet[1].part, a.teamMembers[0].moveSet[2].part, a.teamMembers[0].moveSet[3].part, a.teamMembers[0].position, 
+          'https://marketplace.axieinfinity.com/axie/'+ a.teamMembers[1].axieId, a.teamMembers[1].moveSet[0].part, a.teamMembers[1].moveSet[1].part, a.teamMembers[1].moveSet[2].part, a.teamMembers[1].moveSet[3].part, a.teamMembers[1].position, 
+          'https://marketplace.axieinfinity.com/axie/'+ a.teamMembers[2].axieId, a.teamMembers[2].moveSet[0].part, a.teamMembers[2].moveSet[1].part, a.teamMembers[2].moveSet[2].part, a.teamMembers[2].moveSet[3].part, a.teamMembers[2].position];
 };
 
 
@@ -1403,120 +1604,297 @@ var landTemp_ = function(a) {
 
 
 
+
+
 /////////////////////////////////////Anons/////////////////////////////////////
 /*******************************************************************************
 This file contain customFunction I made, feel free to copy them if you like what
 you see.
 *******************************************************************************/
+
+
 /**
  * Rest parametter
  *
  * @param {number} maxParam Number of defined params and/or index of your rest param.
  * @param {arguments variable} args Simply pass the arguments variable of your parent function.
- * @param {array} containerArray The array that will store values of extending params.
+ * @param {variable} container The array that will store values of extending params.
  *
  * @return {array} Return an array of values to work with.
  */
-function restParam_(maxParam, args, containerArray) {
-  if(args.length >= maxParam) {
+function restParam_(maxParam, args, container) {
+  
+  if(args.length > maxParam) {
+    Logger.log("loopings args");
+    
     for(var i = maxParam -1; i < args.length; i++) {
-//      Logger.log(args[i])
-      containerArray.push(args[i]);
+      Logger.log(args[i]);
+      
+      if(args[i]) container.push(args[i]);
+    }; 
+    
+  } else if (args.length == maxParam) {
+    Logger.log("Only one arg");
+    Logger.log(args[args.length -1]);
+    
+    container = args[args.length -1];
+  }
+  
+  Logger.log("log results")
+  Logger.log(container);
+  Logger.log("type of container: " + typeof(container));
+  
+  return container;
+};
+
+
+
+function pagination_(source, p, arrayId, totalId, paginationOffset, modifier, maxItem) {
+  
+  var pBackup = JSON.stringify(p), // original param.
+      response = source(p), //call to data source.
+      tot = response[totalId], //total items found.
+      lmtReached = 0; // little variance trigger on final msg.
+  
+  
+  maxItem = !maxItem ? 1000 : maxItem; /** Default max item. 
+  (tested up to 2414 items, took very long to run and doesnt work from spreadsheet 
+  but in script it works.)*/
+  
+  Logger.log("%s Items will be processed or less.", maxItem);
+  
+  
+  function processItems(response, arrayId, modifier, containerArray, itemLimit){
+    
+    for(var i = 0; i < response[arrayId].length; i++) {
+      if(containerArray.length >= itemLimit) break;
+      
+      if(!modifier) containerArray.push(response[arrayId][i]);
+      else {
+        
+        var item = modifier(response[arrayId][i])
+        if(!item) item = "";
+        
+        containerArray.push(item);
+      }
     };
     
     return containerArray;
   };
-};
-
-
-
-function pagination_(source, p, arrayId, total, offset, modifier, maxPage) {
-  var arr = [],
-      pBackup = JSON.stringify(p), // original param.
-      response = source(p), //call to data source.
-      tot = response[total], //total items found
-      page = 0; //count pages
   
-  maxPage = !maxPage ? 500 : maxPage; // Default max page
   
-  function processItems(response, arrayId, modifier, containerArray){
-    response[arrayId].forEach(function(e) {
-      if(modifier) {
-        containerArray.push(modifier(e));
-      } else {
-        containerArray.push(e);
-      };
-    });
-    return containerArray;
-  };
+  var containerArray = new Array();
   
-  if(tot < offset) {
-    processItems(response, arrayId, modifier,arr);
-    p = JSON.parse(pBackup);
+  if(tot < paginationOffset) {
     
+    Logger.log("Less then %s items found", paginationOffset);
+    Logger.log("%s items found", tot);
+    
+    processItems(response, arrayId, modifier, containerArray, maxItem);
   } else {
-    while (tot > arr.length) {
+    
+    Logger.log("More then %s items found", paginationOffset);
+    Logger.log("%s items found", tot);
+    
+    while (tot > containerArray.length) {
       
-      processItems(response, arrayId, modifier, arr);
-     
-      if(tot <= arr.length) break;
-      
-      //Google limit control. 
-      if(page >= maxPage) {
-        var limit = (maxPage +" pages limit reached.\n Limit to avoid breaking google quotas and other isssues, can be changed in function pagination");
+      //Google limit control. will lod and add to spreadsheet a advise msg.
+      if(containerArray.length >= maxItem) {
+        
+        var limit = (maxItem +" item limit reached.\n Limit to avoid breaking google quotas, exceed run time limit, set in function pagination_ in utils/anons.gs");
+        
         Logger.log(limit);
-        arr.push([limit], [arr.length, "<= This is the ammount of axies you've retreived so far. You can start a new request and set offset param to this number and continue. NB; "+
-                  "Its is possible  that you are getting close to google daily quota limits"]);
+        
+        containerArray.push([limit]);
+        lmtReached ++;
+        
         break;
       };
-      p = JSON.parse(pBackup);
-      p.offset = arr.length;
-//      Logger.log("Pagination. Params");
-//      Logger.log(p);
       
-      page ++;
+      processItems(response, arrayId, modifier, containerArray, maxItem);
+      
+      if(tot <= containerArray.length) break;
+      
+      p = JSON.parse(pBackup);
+      p.offset = containerArray.length;
+      
       response = source(p);
     }; 
   };
   
-  return arr;
+  if(Array.isArray(containerArray[0])) {
+    
+    var endRow = [containerArray.length - lmtReached, tot, "This is the items you've retreived so far and the total item found. You can start a new request and set offset param to this number and continue."];
+    if(containerArray.length - lmtReached === tot) endRow.push("Search successful");
+    
+    containerArray.push(endRow);
+    
+    Logger.log("Finished pagination.");
+  }
+  
+  return containerArray;
 };
 
 
 
-/** https://stackoverflow.com/a/48046426/9588601
- * Takes a 2D array with element arrays with differing lengths
- * and adds empty string elements as necessary to return 
- * a 2D array with all element arrays of equal length.
- * @param {array} ar
- * @return {array}
+/**
+ * make sure your rest param is at the end of your propertyNameList
  */
-function symmetric2DArray_(ar){
-  var maxLength;
-  var symetric = true;
-  if (!Array.isArray(ar)) return [['not an array']];
-  ar.forEach( function(row){
-    if (!Array.isArray(row)) return [['not a 2D array']];
-    if (maxLength && maxLength !== row.length) {
-      symetric = false;
-      maxLength = (maxLength > row.length) ? maxLength : row.length;
-    } else { maxLength = row.length }
-  });
-  if (!symetric) {
-    ar.map(function(row){
-      while (row.length < maxLength){
-        row.push('');
-      }
-      return row;
-    });
-  }
-  return ar
-}
-
-function addHeader_(trigger, array, headerTemp) {
-  if(trigger) {
-    array.unshift(headerTemp);
+function argsToObj_(expectedArgCount,propertyNameList, arguments) {
+  
+  var p = {},
+      lastArgAr = restParam_(expectedArgCount, arguments, new Array());
+  
+  //Build parametter object
+  for(var i = 0; i < propertyNameList.length; i++) {
+    
+    //If last property;
+    if(i === propertyNameList.length -1 && lastArgAr) { 
+      
+      Logger.log("setting last param")
+      Logger.log(typeof(lastArgAr));
+      
+      p[propertyNameList[i]] = lastArgAr; 
+      
+      break; 
+     
+    } else if(i === propertyNameList.length -1 && !lastArgAr) {
+      
+      Logger.log("no last param to set")
+      p[propertyNameList[i]] = "";
+      
+      break;
+      
+    } else if(arguments[i]) {
+      
+      p[propertyNameList[i]] = arguments[i];
+    }
   };
   
-  return array;
+  Logger.log(p);
+  return p;
+};
+
+
+
+/**
+* Turn object to query string\
+*
+* @param {object} obj Supply an paramter object.
+* @param {boolean} start indicate if you are starting a new query string or appending to one.
+* @return {string} query string to append at the end of an uri.
+*/
+function obj2queryStr_(obj, start) {
+  
+  var queryS = "";
+  
+  if(obj) {
+    
+    //parametters properties
+    var props = Object.keys(obj);
+    Logger.log(props);
+    
+    if(start) {
+      if(Array.isArray(obj[props[0]])) {
+        
+        queryS += ("?" +props[0] +"=" +obj[props[0]][0]);
+        
+        obj[props[0]][0].shift();
+        
+        obj[props[0]].forEach(function(value) {
+          queryS += ("&" +props[0] +"=" + value);
+          
+          //      Logger.log(queryS);
+          return queryS;
+        });
+        
+      } else {
+        queryS += ("?" +props[0] +"=" +obj[props[0]]);
+      }
+      
+      props.shift();
+    };
+    
+    if (props.length >= 1) {
+      
+      props.forEach(function(prop) {
+        
+        if(Array.isArray(obj[prop])) {
+          
+          obj[prop].forEach(function(value) {
+            
+            queryS += ("&" +prop +"=" + value);
+            
+            //      Logger.log(queryS);
+            return queryS;
+          });
+          
+        } else {
+          queryS += ("&" +prop +"=" +obj[prop]);
+        };
+        
+        //      Logger.log(queryS);
+        return queryS;
+      });
+    };
+  };
+  
+  Logger.log(queryS);
+  return queryS;
+};
+
+
+
+// Is a valid numerical value. exclude null.
+function validateN_(number) {
+  
+  if (number === null) return false;
+  return (!isNaN(number) && number !== ""); //
+};
+
+
+/**
+ * If checked value DOES NOT match with any of the values
+ * in the array return true.
+ * (function originaly created to check if a value 
+ * -        is in the exception list on an other interator function.)
+ */
+function chkAbsence_(array, value2check) {
+  
+  if(!array) return true ; //nothing to check in;
+
+  var res = array.every(function (a) { return a !== value2check });
+  //  Logger.log("checkIfNoMatch:\n result: "+res);
+  return res;
+};
+
+/** 
+ *
+ *
+ */
+function checkPresence_(arr, val) {
+  
+  return arr.some(function(arrVal) {
+    return val === arrVal;
+  });
+};
+
+
+
+/**
+ * Function to make sure rounding does not crash with toFixed().
+ * Will only apply toFixed when possible else will return entry raw.
+ */
+function myToFixed_(number, decimal) {
+  
+  if (validateN_(number)) return Number(number).toFixed(decimal);
+  else return number;
+};
+
+
+
+function cleanObj(obj) { //   https://stackoverflow.com/a/286162/9588601
+  for (var propName in obj) { 
+    if (obj[propName] === null || obj[propName] === undefined || obj[propName] === "") delete obj[propName];
+  }
 };
