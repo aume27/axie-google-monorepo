@@ -1,8 +1,40 @@
 /**
+Some price and market data related functions.
+Including a public api wrapper for coinGecko services.
+*/
+
+//Globals
+var errr = "Error occured";
+
+
+
+var gecko_suppFiats =  [ //from coingecko.com as of December 16 2018. api v3.
+  "aed","ars","aud",
+  "bdt","bhd","bmd",
+  "bnb","brl",
+  "cad","chf", "clp",
+  "cny","czk","dkk",
+  "eur", "gbp","hkd",
+  "huf","idr","ils",
+  "inr","jpy", "krw","kwd",
+  "lkr","mmk",
+  "mxn","myr","nok",
+  "nzd","php","pkr",
+  "pln","rub","sar",
+  "sek","sgd","thb",
+  "try","twd","uah",
+  "usd","vef","vnd",
+  "xag","xau","xdr",
+  "zar"
+];
+
+
+
+/**
  * Coin gecko extraction function. Get data from:
  *            https://www.coingecko.com/api?locale=en
  * The key param work for metric contained in objects, not arrays.
- * Dependencies: myToFixed (), chkAbsence(), cgkoList(),
+ * Dependencies: myToFixed_ (), chkAbsence_(), cgkoList(),
  *               error handlers vars, var gecko_suppFiats.
  * examples:
  *         cgkoExtV1("ethereum", bCurrency, bFiat);
@@ -17,36 +49,22 @@
  * @return {Array | String} response object
  * @customFunction
  */
-var gecko_suppFiats =  [ //from coingecko.com as of December 16 2018. api v3.
-  "usd","aed","ars",
-  "aud","bdt","bhd",
-  "bmd","brl","cad",
-  "chf","clp","cny",
-  "czk","dkk","eur",
-  "gbp","hkd","huf",
-  "idr","ils","inr",
-  "jpy","krw","kwd",
-  "lkr","mmk","mxn",
-  "myr","nok","nzd",
-  "php","pkr","pln",
-  "rub","sar","sek",
-  "sgd","thb","try",
-  "twd","vef","zar",
-  "xdr","xag","xau"
-];
-function cgkoExtV2( asset, bCurrency, bFiat, key){
+function cgkoExtV3( asset, bCurrency, bFiat, key){ //edited wed 18 march 2020.
 
   //asset undefined check
   if (!asset || typeof(asset) != "string") {
     Logger.log(errr + "\n Asset:   " + asset + "\n Object type:   " + typeof(asset));
     return [errr];
   };
+  
   //Base and fiat convertor check
   switch(bCurrency) { case undefined: bCurrency = "btc"; break; };
   switch(bFiat) { case undefined: bFiat = "usd"; break; };
 
+  
   //Handles if search is a fiat currency.
-  if (chkAbsence(asset,gecko_suppFiats) == false) {
+  if (!chkAbsence_(gecko_suppFiats, asset)) {
+    
     //get coin gecko Id of base currency
     switch(bCurrency) {
       case "btc": var bGeckoId = "bitcoin"; break;
@@ -54,39 +72,50 @@ function cgkoExtV2( asset, bCurrency, bFiat, key){
       default: var bGeckoId = srchByCmpr("symbol", "id", bCurrency, cgkoList(), gecko_suppFiats);
         break;
     }
+    
     //get value of base currency in the searched fiat
     var res = cgkoExtV2(bGeckoId, "", "", "market_data.current_price."+ asset);
 
-    if (res[0] == errr || res[0] == unav) {
-      return [unav, "Unable to get base/tracked to calculate unit rate. Cause:  "+ res+"  . For: "+ asset];
-    } else {
+    if (res[0] == errr || res[0] == unav) return [unav, "Unable to get base/tracked to calculate unit rate. Cause:  "+ res+"  . For: "+ asset];
+    else {
       //If request for one value
       if(key && key.indexOf("current_price") > -1) { return (res == 0 ? 0 : (1/ res)) };
+      
       //as an array:
       //calculate value of 1 fiat unit on nase currency.
       res = res == 0 ? 0 : (1/ res);
+      
       return [asset,"","", res, "value of 1"+ asset+ " /"+bCurrency];
     };
   };
 
+  
   //Working coinGecko call and data
   var cgkoAstApi = UrlFetchApp.fetch("https://api.coingecko.com/api/v3/coins/"+ asset + "?tickers=false&developer_data=false",
                                      {'muteHttpExceptions': true});
+  
   try { //eg: https://api.coingecko.com/api/v3/coins/bitcoin?localization=false
 
     var ast = JSON.parse(cgkoAstApi.getContentText());
+    
     if (!ast) {
       Logger.log(unav + "\n Asset:   " + asset);
       return [unav];
     };
+    
     var astMkt = ast['market_data'];
 
     if (!key) {
+      
       //Handle if ICO metrics are available or not and base calculation
       var ico = {};
+      
       if (ast['ico_data']) {
+        
         var astIco = ast['ico_data'];
+        
         if ( astIco.quote_public_sale_amount && astIco.base_public_sale_amount ) {
+          
           //ternary trip ... Handle Ico end date to avoid errors
           var endDate = (astIco.ico_end_date == null || undefined) ? "Date missing" : astIco.ico_end_date;
           endDate = endDate != "Date missing" ? (endDate.indexOf("T") > -1 ? endDate.slice(0,endDate.indexOf("T")) : endDate):endDate;
@@ -95,7 +124,7 @@ function cgkoExtV2( asset, bCurrency, bFiat, key){
           ico.price = (Number(astIco.quote_public_sale_amount) / Number(astIco.base_public_sale_amount));
           ico.currency = astIco.quote_public_sale_currency.toLowerCase() || unav;
           ico.priceChange = ((astMkt.current_price[ico.currency] / ico.price -1)*100);
-          ico.priceChange = myToFixed(ico.priceChange, 2);
+          ico.priceChange = myToFixed_(ico.priceChange, 2);
 
         } else {
           ico.price = noIco;
@@ -110,6 +139,7 @@ function cgkoExtV2( asset, bCurrency, bFiat, key){
         ico.priceChange = "---";
       };
 
+      
       var extraCurr = bCurrency.toLowerCase() == "eth" ? "btc" : "eth";
 
       //Resorted in a simplified array combining both base and convertion metrics
@@ -132,31 +162,39 @@ function cgkoExtV2( asset, bCurrency, bFiat, key){
         ico.priceChange,
         ico.end_date,
         astMkt.ath[bFiat],
-        myToFixed(astMkt.ath_change_percentage[bFiat], 2),
+        myToFixed_(astMkt.ath_change_percentage[bFiat], 2),
         astMkt.ath[bCurrency],
-        myToFixed(astMkt.ath_change_percentage[bCurrency], 2),
-        myToFixed(astMkt.price_change_percentage_24h_in_currency[bFiat], 2),
-        myToFixed(astMkt.price_change_percentage_7d_in_currency[bFiat], 2),
-        myToFixed(astMkt.price_change_percentage_30d_in_currency[bFiat], 2),
+        myToFixed_(astMkt.ath_change_percentage[bCurrency], 2),
+        myToFixed_(astMkt.price_change_percentage_24h_in_currency[bFiat], 2),
+        myToFixed_(astMkt.price_change_percentage_7d_in_currency[bFiat], 2),
+        myToFixed_(astMkt.price_change_percentage_30d_in_currency[bFiat], 2),
         ast.id,
         ast.links.homepage[0],
         ast.last_updated
       ];
 
       return cgkoArr;
+      
     } else {
+      
       var ks = ast;
+      
       var keyPath = key.split(".");
+      
       //        Logger.log(keyPath);
       for (var i = 0; i < keyPath.length; i++) {
         var ks = ks[keyPath[i]];
       }
+      
       return ks;
     };
+    
   } catch (e) {
+    
     Logger.log("Catching: "+e);
     Logger.log(cgkoAstApi.getResponseCode());
     Logger.log(cgkoAstApi.getHeaders());
+    
     return [errr, "request failed", cgkoAstApi.getResponseCode()];
   };
 }

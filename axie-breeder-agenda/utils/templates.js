@@ -35,7 +35,7 @@ var axieTemp_ = function(a) {
   //Base axie data
   if(a.stage < 3) {
     //stage 1 egg and 2 larva
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, "",
+    axStats = [ a.image , ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, "",
                a.title, a.stage, a.level, "", "", "" , "", "", "", "",
                "", "", "",
                "", "", "",
@@ -48,7 +48,7 @@ var axieTemp_ = function(a) {
   } else if(a.stage < 4) {
     
     //stage 3 petite and 4 adult
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
+    axStats = [ a.image , ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
                a.title, a.stage, a.level, "", false, "",
                a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale,
                a.parts[0].name, a.parts[0].class, a.parts[0].stage,
@@ -61,7 +61,7 @@ var axieTemp_ = function(a) {
                (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm"))];
   } else {
     //Stage 4 adult
-    axStats = [ ('=image(\"' +a.image +'\", 1)'), ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
+    axStats = [ a.image , ('https://marketplace.axieinfinity.com/axie/'+ a.id), a.name, a.class,
                a.title, a.stage, a.level, a.exp, a.breedable, a.breedCount,
                a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale,
                a.parts[0].name, a.parts[0].class, a.parts[0].stage,
@@ -93,7 +93,7 @@ var axieTemp2_ = function(a) {
   
   //Base axie data
   if(a.stage < 3) {//stage 1 egg and 2 larva
-    axStats = [('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, "",
+    axStats = [('=IMAGE(\"' +a.image +'\"; 1)'), ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\"; '+a.id+ ')'), a.name, "",
                "", "", "", "", "", "", "", "", (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
                "", "",
                "", "",
@@ -102,7 +102,7 @@ var axieTemp2_ = function(a) {
                "", "", "", "", "", "", "", "",
                "", "", "", "", "", "", "", ""];
   } else if(a.stage < 4) {//stage 3 petite and 4 adult
-    axStats = [('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, a.class,
+    axStats = [('=IMAGE(\"' +a.image +'\"; 1)'), ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\"; '+a.id+ ')'), a.name, a.class,
                a.title, a.level, "", "", a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale, (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
                a.parts[0].name, a.parts[0].class,
                a.parts[1].name, a.parts[1].class,
@@ -111,7 +111,7 @@ var axieTemp2_ = function(a) {
                a.parts[4].name, a.parts[4].class, a.parts[4].moves[0].name, a.parts[4].moves[0].type, a.parts[4].moves[0].attack, a.parts[4].moves[0].defense, a.parts[4].moves[0].accuracy, addEffect(a, 4),
                a.parts[5].name, a.parts[5].class, a.parts[5].moves[0].name, a.parts[5].moves[0].type, a.parts[5].moves[0].attack, a.parts[5].moves[0].defense, a.parts[5].moves[0].accuracy, addEffect(a, 5)];
   } else {//Stage 4 adult
-    axStats = [('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\", '+ 'image(\"' +a.image +'\", 1))'), a.id, a.name, a.class,
+    axStats = [('=IMAGE(\"' +a.image +'\"; 1)'), ('=HYPERLINK(\"https://marketplace.axieinfinity.com/axie/'+ a.id+'\"; '+a.id+ ')'), a.name, a.class,
                a.title, a.level, a.exp, a.breedCount, a.stats.hp, a.stats.speed, a.stats.skill, a.stats.morale, (Utilities.formatDate(new Date(a.birthDate * 1000), timeZone, "dd-MM-yyyy'_'HH:mm")),
                a.parts[0].name, a.parts[0].class,
                a.parts[1].name, a.parts[1].class,

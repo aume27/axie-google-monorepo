@@ -5,12 +5,12 @@
  
  
  
- function addHeader_(trigger, array, headerTemp) {
-  if(trigger) {
-    array.unshift(headerTemp);
-  };
+
+function addHeader_(trigger, array, headerTemp) {
+   
+  if(trigger) array.unshift(headerTemp);
   
-  return array;
+   return array;
 };
 
 
@@ -46,12 +46,15 @@ function symmetric2DArray_(ar){
 
 
  
- function switchPlaces() {
+function switchPlaces() {
+  
   var target = sheet.getActiveRange(), //.getRange('B2:D2'), 
       activities = target.getValues();
-// Logger.log(target.getA1Notation())
- Logger.log(activities)
- var  leftAct = activities[0].splice(0, 1)[0],
+  
+  
+  
+  Logger.log(activities)
+  var  leftAct = activities[0].splice(0, 1)[0],
       rightAct = activities[0].splice(activities[0].length -1, 1)[0];
   
   
@@ -60,33 +63,50 @@ function symmetric2DArray_(ar){
   
   activities[0].unshift(rightAct);
   activities[0].push(leftAct);
+  
   Logger.log(activities);
-  target.setValues(activities);
-//  Logger.log(sheet.getActiveRange().getValues());//.getA1Notation());
+  target.setValues(activities);  
 }
 
 
 
 function countSheets(tag) {
+  
   var sheets = ss.getSheets(),
-      shtNames = [];
+      shtNames = new Array();
   
   for (var i= 0; i < sheets.length; i++) {
     var shtName = sheets[i].getName();
     if(shtName.indexOf(tag) >= 0) shtNames.push(shtName);
   };
+  
   Logger.log("Pages that have been counted: "+ shtNames.join(", ")+ ".");
   return shtNames.length;
 }
 
 
+function getSheetUrl(sht) {
+  
+  var ss = SpreadsheetApp.getActive(),
+      url = '';
+
+  sht = sht ? sht : ss.getActiveSheet();
+
+  url = (ss.getUrl() + '#gid=' + sht.getSheetId());
+
+  return url;
+}
+
+
 
 function deleteHtmlElement_(element) {
-//  console.log("heres the element:", element);
-//      console.log("removing inner html");
+  
   element.innerHTML = "";
-//      console.log("removing element", element);
+  
   element.remove();
   return;
 }
+
+
+
 
