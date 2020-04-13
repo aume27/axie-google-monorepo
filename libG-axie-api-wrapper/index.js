@@ -162,12 +162,13 @@ function restParam_(maxParam, args, containerArray) {
 * @return {string} query string to append at the end of an uri.
 */
 function obj2queryStr_(obj, start) {
+//  Logger.log("converting object to query string.");
   var queryS = "";
   
   if(obj) {
     //parametters properties
     var props = Object.keys(obj);
-    //    Logger.log(props);
+//    Logger.log(props);
     if(start) {
       if(Array.isArray(obj[props[0]])) {
         queryS += ("?" +props[0] +"=" +obj[props[0]][0]);
@@ -176,7 +177,7 @@ function obj2queryStr_(obj, start) {
         obj[props[0]].forEach(function(value) {
           queryS += ("&" +props[0] +"=" + value);
           
-          //      Logger.log(url);
+          //      Logger.log(queryS);
           return queryS;
         });
       } else {
@@ -193,17 +194,18 @@ function obj2queryStr_(obj, start) {
           obj[prop].forEach(function(value) {
             queryS += ("&" +prop +"=" + value);
             
-            //      Logger.log(url);
+            //      Logger.log(queryS);
             return queryS;
           });
         } else {
           queryS += ("&" +prop +"=" +obj[prop]);
         };
-        //      Logger.log(url);
+        //      Logger.log(queryS);
         return queryS;
       });
     };
   };
+//  Logger.log(queryS);
   return queryS;
 };
 
@@ -227,7 +229,7 @@ function pubReq_(url) {
       },
       result = UrlFetchApp.fetch(url, params),
       response = JSON.parse(result.getContentText());
-
+    
     return response;
 
   } catch(e) {
@@ -248,7 +250,7 @@ function pubReq_(url) {
  */
 function getSingleAxie(axie) {
 
-  if (typeof(axie) !== "number") {
+  if (!axie || isNaN(axie)) {
     return "getSingle() error.\n You must provide a valide AXIE_ID. E.g. 27777 as a number.";
   };
 
@@ -436,7 +438,7 @@ function getCharm(ethAddress) {
 function getActivityPoints(axies) {
 
   //safe checks.
-  if(!Array.isArray(axies) && typeof(axies) !== "number") {
+  if(!Array.isArray(axies) && isNaN(axies)) {
     return "getActivityPoints() error.\nYou must provide a valide axie Id as a number or an array of axie IDs, e.g. 27706 or [ ..., 27706, 27777].";
   };
 
