@@ -1,81 +1,3 @@
-function onEdit() {//testing on edit for on completion records
-  
-}
-
-//function tst1212(a1, a2, a3, a4) { // testing function argsToObj()
-//  Logger.log("Length")
-//  Logger.log(arguments.length)
-//  Logger.log("first arg")
-//  Logger.log(arguments[0])
-//  Logger.log("args")
-//  Logger.log(arguments)
-//  
-//  var paramObj = argsToObj_(4,["a1","a2","a3","a4"], arguments);
-//  return paramObj;
-//}
-
-
-function tst(data) {
-//  Logger.log(tst1212("hello", true, 12, [1,2,3,4,5]));
-    //tst1212("hello", true, 12, [{obj: "tst"},{obj2: "tst2"}]));
-  
-  //function clearEmptyVals(n) { return n !== "" }; 
-  //var a = ["", "sfdfd", 1, "", ""];
-  //Logger.log(a.filter(clearEmptyVals));
-  
-  //  var sheet = ss.getSheetByName("Copy of offense").activate();
-  //  Logger.log(sheet);
-  //  sheet.appendRow(["hello world"]);
-  
-  
-  //  Logger.log(Ai.getMyAxies({
-  //    address: "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b",
-  //    stage: 1
-  //  }));
-  
-  
-  //  var ss = SpreadsheetApp.getActive(),
-  //      sheet = ss.getActiveSheet(),
-  //      cell = sheet.getActiveCell(),
-  //      manager = ss.getSheetByName("Manager");
-  //  Logger.log(manager);
-  //  Logger.log(manager.getRange("mainEthAddr").getA1Notation());
-  
-  
-  //  var out = new Array()
-  //  var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-  //  for (var i=0 ; i<sheets.length ; i++) out.push( [ sheets[i].getName() ] );
-  //  Logger.log(out);
-  //  return out
-  
-  //  var planName = "plan: tstPlan"
-  //  Logger .log(planName.split(": "));
-};
-
-
-function tst_priceFeed(){
-  Logger.log(cgkoExtV2("bitcoin","","","market_data.current_price.usd"));
-}
-
-
-function tst2_breedingPlannerSheet() {
-  Logger.log(axieSearchByName("a.dps", "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //, axieTemp2_)); //tst5 search for and in axies name.
-  
-//  //testing way to retreive data for sheet.
-//  var data = ss.getSheetByName("plan: Bug deck").getDataRange().getValues();
-//  Logger.log(typeof(data[3][2]));
-//  Logger.log(data);
-//  return data;
-  
-  //test first part in script, get axies lists and get data about them.
-//  updatePlan("tstPlan"); //success
-  
-  //test create history and plan sheet.
-//  saveToHistory("tstPlan");
-  scanForBabies("tstPlan");
-//  axieInventory()
-}
-
 
 /** Spreadsheet tests
 /=getSingleAxie(128535)
@@ -86,49 +8,6 @@ function tst2_breedingPlannerSheet() {
 /=getCharm("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")
 /=getTeams("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b", 100)
 */
-
-
-function tsts_spreadsheetUtils() {
- var res = axieSearchEncyclopedia("", "", "1", "", "4", "plant", "", "", "", "", "", "mouth-toothless-bite", "tail-shrimp");
-     // axieSearchAddress("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b", "", "", "", "", "", "", "", "", "", "", "", "mouth-toothless-bite", "tail-shrimp");
-    //axieGetSingle(27706)); //tst1
-//  getBodyParts(); //tst3 test getBodyParts
-  Logger.log(res);
-  
-  
-  
-//   Logger.log(getMultiAxies([27706, 27705, 27704]))
-//   Logger.log(Ai.getMultiAxies(27706, 27705, 27704));
-//  getSingleAxie(130000); //tst5 check response for different axie stages
-//  toSheet(6-1, 2, 1, axieSearchEncyclopedia("" ,"" ,"" ,"" ,"" ,4, "beast" ,"", "" ,"", "", ""))//, "tail-the-last-one", "horn-imp")); //tst6 find the problem with getMyAxies()
-//  Logger.log(getCharm("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //tst7
-//  Logger.log(getActivityPoints(27706, 100000,100001,100002,100003,100004,100005,100006,100007,100008,100009,100010,100011,100012)); //tst8
-//  Logger.log(getLboard()); //tst9
-//  Logger.log(getTeams("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b", 100)); //tst10
-//  Logger.log(getTeam("b3e8e6f1-06e6-4d2d-a1ff-609a549aafb2")); //tst11
-//  Logger.log(getMarket("", 100, "", "", "", "epic")); //Ai.getMarket().results[0]); //tst12
-//  Logger.log(getMarketBundles("", 100, "", "", "", "")); //tst13
-  
-  //Wohooo core functions done and working properly (for the moment).
-//  Logger.log(axiePriceFloor(true));
-  //axieSearchEncyclopedia("" , "", "" ,"" ,"" ,"" ,4, "beast" ,"", "" ,"", "", "", "tail-the-last-one"));
-  //axiePriceFloor(true));
-  //axieSearchByName("a.dps", "0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //, axieTemp2_)); //tst5 search for and in axies name.
-    //simpleCheckBreedable(0,6, 150)); //tst4
-    //getSmallLoveP("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //tst3
-    //getAccAxieCount("0x72B786Ff9ef6D56A2B2dDDcfFF9bf78f353B145b")); //tst2
-    //isBreedable(124136)); //120885)); //tst1
-}
-
-function tst_library() {
-  var tst = Ai.getMyAxies("0x72b786ff9ef6d56a2b2dddcfff9bf78f353b145b");
-  Logger.log(tst);
-}
-
-
-
-
-
 
 
 function tst_scanForBabies(planName) {
@@ -204,13 +83,9 @@ function tst_scanForBabies(planName) {
     };
   };
   
-  rng.refreshTrigger.setValue(Math.random(1, 10));
+refresh();
   return plan.getName();
 };
-
-
-
-
 
 /**
 //notes on form output

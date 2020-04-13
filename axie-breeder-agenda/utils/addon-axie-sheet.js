@@ -1,14 +1,18 @@
 /*
  @customfunction
 */
-
+/** Notes
+- built as a "Two pager" script. Copy this file and "utils/anons-script".
+*/
 /////////////////////////////////////Globals/////////////////////////////////////
 
-//display prices properly.
+//display prices properly. adjust decimals
 var div = 1000000000000000000;
 
 //Set all functions to display header. to disable change it for false.
 var showHead = true;
+
+
 
 
 
@@ -22,11 +26,14 @@ var showHead = true;
  * @customfunction
  */
 function axieSearchSingle(axie) {
+  
   var axStats = axieTemp_(Ai.getSingleAxie(axie)),
       result = [axStats];
   
+  
   addHeader_(showHead, result, axieHeadTemp_());
-//  Logger.log(result)
+  
+  Logger.log(result)
   return result;
 }
 
@@ -40,24 +47,23 @@ function axieSearchSingle(axie) {
  * @customfunction
  */
 function axieSearchMultiple(axies) {
-  var axieIds = [],
-      result = [];
   
-  if(arguments.length > 1) {
-  restParam_(1, arguments, axieIds);
-    
-  } else if (Array.isArray(axies)) {
-        axieIds = axies.join().split(",");     
-  };
+  var axieIds = new Array(),
+      result = new Array();
   
-  showHead = false
+  if(arguments.length > 1) restParam_(1, arguments, axieIds);
+  else if (Array.isArray(axies)) axieIds = axies.join().split(",");     
+  
+  showHead = false;
+  
+  
   axieIds.forEach(function(id) {
-    if(id) {
-    result.push(getSingleAxie(Number(id))[0]);
-    } else { result.push(""); };
+    if(id) result.push(getSingleAxie(Number(id))[0]);
+    else result.push("");
   });
   
-//  Logger.log(result);
+  
+  Logger.log(result);
   return result;
 }
 
@@ -82,27 +88,32 @@ function axieSearchMultiple(axies) {
  * @param {string} title Filter by title like origin, meo%20corp.
  * @param {trigger} mystic Filter only mystic axies
  * @param {number} num_mystic Filter by number of mystic parts on axies
- * @param {string} parts Filter by parts. This parametter is a restParam, just add more parametters holding the different parts the axie must have.
- *                 e.g.:Skip params before parts with "". Then add multiple parts separated by comas.
- *                      =axieSearchEncyclopedia("", "", "", "", "", "", "", "", "", "", "", "", "horn-imp", "back-snail-shell", "tail-gerbil")
+ * @param {string} part Filter by parts. Add more inputs with the different parts the axie must have.
+ *                 e.g.:Skip params. Then add multiple parts separated by semicolon.
+ *                 =axieSearchEncyclopedia(""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; "horn-imp"; "back-snail-shell";...)
  * @customfunction
  */
 function axieSearchEncyclopedia(offset, display, sale, sorting, stage, class, pureness, region, title, mystic, num_mystic, part) {
+  
   var argNum = 12,//number of parametters in thsi function. for custom rest param.
       partAr = restParam_(argNum, arguments, []),
-      axies = [];
-  
+      axies = new Array();
   
   
   //Build parametter object
   offset = offset ? offset: 0; //offset default to zero.
+  
   var p = argsToObj_(argNum, axieSearchParams, arguments);
+  
   
   //axie infinity return json off 12 axies at a time so i defaulted the pagination at 12.
   Logger.log("Starting pagination");
+  
   axies = pagination_(Ai.getAllAxies, p, "axies", "totalAxies", 12, axieTemp_, display);
   
+  
   addHeader_(showHead, axies, axieHeadTemp_());
+  
   return symmetric2DArray_(axies);
 };
 
@@ -110,10 +121,11 @@ function axieSearchEncyclopedia(offset, display, sale, sorting, stage, class, pu
 
 /**
  * Get axies By Address.
- * Provide data about all axies for given ethereum address.
+ * Provide data about all axies for given ethereum address. All option are OPTIONAL
  *
  * @param {string} ethAddress ethereum address
  * @param {number} offset The number of axies to skip.
+ * @param {number} display Indicate how many axie to display.
  * @param {trigger} sale A trigger to indicate if you want only axies on sale or not. e.g: a number like 0 or 1.
  * @param {string} sorting The sorting rule you want, can be latest_auction, lowest_price, highest_price, lowest_id, highest_id.
  * @param {number} stage The stage number. 1 egg, 2 larva, 3 petite or 4 adult
@@ -124,16 +136,16 @@ function axieSearchEncyclopedia(offset, display, sale, sorting, stage, class, pu
  * @param {trigger} mystic Filter only mystic axies
  * @param {number} num_mystic Filter by number of mystic parts on axies
  * @param {string} part Filter by parts. Add more inputs with the different parts the axie must have.
- *                 e.g.:Skip params before part with "". Then add multiple parts separated by comas.
- *                      =axieSearchEncyclopedia("", "", "", "", "", "", "", "", "", "", "", "", "horn-imp", "back-snail-shell", "tail-gerbil")
+ *                 e.g.:Skip params. Then add multiple parts separated by semicolon.
+ *                 =axieSearchEncyclopedia(""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; "horn-imp"; "back-snail-shell";...)
  * @customfunction
  */
 function axieSearchAddress(address, offset, display, sale, sorting, stage, class, pureness, region, title, mystic, num_mystic, part) {
+  
   var argNum = 13,//number of parametters in thsi function. for custom rest param.
       partAr = restParam_(argNum, arguments, []),
-      axies = [];
-  
-  
+      axies = new Array();
+
   
   //Build parametter object
   offset = offset ? offset: 0; //offset default to zero.
@@ -141,7 +153,7 @@ function axieSearchAddress(address, offset, display, sale, sorting, stage, class
   axieSearchParams.unshift("address");
   
 //  Logger.log("axieSearchParams");
-//  Logger.log(axieSearchParams);
+//  Logger.log(axieSearchParams); //rmorv
   var p = argsToObj_(argNum, axieSearchParams, arguments);
   
   //axie infinity return json off 12 axies at a time so i defaulted the pagination at 12.
@@ -160,47 +172,54 @@ function axieSearchAddress(address, offset, display, sale, sorting, stage, class
  *
  * @param {string} nameSearch The string to search for in your axies name.
  * @param {string} ethAddress Address to import the axies from.
- * @param {array of object} axieList Use in script to prodive premade inputs. Array of object.
+ * @param {array} Src2axieList Use in script to input an array of axie objects.
+ * 
+ * @return A array of axies.
  * @customfunction
  */
-function axieSearchName(nameSearch, ethAddress, axieList, template, headTemplate) {
+function axieSearchName(nameSearch, Src1ethAddr, Src2axieList, template, headTemplate) {
   var searchResult = [];
   
-  if(ethAddress) {
+  if(Src1ethAddr) {
     Logger.log("searching through account.");
     
-    var p = { address: ethAddress, offset: 0},
+    var p = { address: Src1ethAddr, offset: 0},
         axies = pagination_(Ai.getMyAxies, p, "axies", "totalAxies", 12);
     
   } else if (axieList) {
+    
     Logger.log("searching through axie list.");
-  
     if (!Array.isArray(axieList)) {
+      
       Logger.log("Wrong axieList type, should provide an array of axie object"); 
       return new Error("Wrong axieList type, should provide an array of axie object");
     }
+    
     if (typeof(axieList[0]) !== "object") {
+      
       Logger.log("Wrong item type, should provide an array of axie object"); 
       return new Error("Wrong item type, should provide an array of axie object"); 
     }
     
     var axies = axieList;
-  
   } else {
   
     logger.log("something went wrong with axie source input.");
     return new Error("something went wrong with axie source input.");
-  
-  }
-  
+  }  
   
   // Default template.
   if (!template) {
+    
     template = axieTemp_;
+    
     headTemplate = axieHeadTemp_();
   } else { //defined template
+    
     if(!headTemplate) { //headerless template.
+      
       headTemplate = "";
+      
       showHead = false;
     }
   }
@@ -209,13 +228,13 @@ function axieSearchName(nameSearch, ethAddress, axieList, template, headTemplate
 
   //Format data.
   axies.forEach(function(axie) {
-    if(axie.name.indexOf(nameSearch) >= 0) {
-      searchResult.push(template(axie));
-    };
+    if(axie.name.indexOf(nameSearch) >= 0) searchResult.push(template(axie));
   });
-  addHeader_(showHead, searchResult, headTemplate);
   
-  Logger.log("Name search completed. Results:");
+  
+  addHeader_(showHead, searchResult, headTemplate);
+
+  Logger.log("Name search completed");
   Logger.log(searchResult);
   return searchResult;
 };
@@ -225,7 +244,9 @@ function axieSearchName(nameSearch, ethAddress, axieList, template, headTemplate
 /**
  * Get account total axies.
  * 
- * @param {string} ethAddress Your ethereum address
+ * @param {string} ethAddress An ethereum address.
+ *
+ * @return {number} Total axie count by ethereum address.
  * @customfunction
  */
 function axieTotalByAddress(ethAddress) {
@@ -247,18 +268,23 @@ function axieTotalAddressSLP(ethAddress) {
 /**
  * get Body Parts
  * Provide data about all body-parts
- *
+ * 
+ * @return {array} List of all parts.
  * @customfunction
  */
 function axieGetBodyParts() {
-  var parts = [],
+  
+  var parts = new Array(),
       response = Ai.getBodyParts();
+  
   
   response.forEach(function(part) {
     parts.push(bodyTemp_(part));
-  })
+  });
+  
   
   addHeader_(showHead, parts, bodyHeadTemp_());
+  
   return symmetric2DArray_(parts);
 };
 
@@ -266,54 +292,85 @@ function axieGetBodyParts() {
 
 
 /** 
- * Get floor adult axie price.
- * 
- * @param {boolean} includePetiteTrigger Indicate if petite must be included when looking for cheapest axie.
- * @retrun {number} axie price.
+ * Get axies floor price (Default).
+ * @customfunction
  */
-function axieGetPriceFloor(includePetiteTrigger) {
+function axiePriceFloor() {
+  
   var stage = 4,
       p = {offset: 0, sale: "true", sorting: "lowest_price", stage: stage},
-      cheapestAxieValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div),
-      cheapestPetiteValue = undefined;
+      cheapestAxieValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
   
-  if (includePetiteTrigger) {
-    stage = 3;
-    cheapestPetiteValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
-    var cheapest = cheapestAxieValue > cheapestPetiteValue ? cheapestPetiteValue : cheapestAxieValue;
-    return Number(cheapest).toFixed(4);
-  } else return cheapestAxieValue;
+  return Number(cheapestAxieValue).toFixed(4);
 }
+
 
 /** 
- * Get floor virgin axie price.
- * 
- * @retrun {number} axie price.
+ * Get petite floor price.
+ * @customfunction
  */
-function axieGetPriceVirginFloor() {
+function axiePricePetiteFloor() {
   
-  function virginOnly(a) {
-    if(a.breedCount === 0) return a;
-//    else return "";
-  }
-  function clearEmptyVals(n) { return n !== "" }; 
+  var stage = 3,
+      p = {offset: 0, sale: "true", sorting: "lowest_price", stage: stage},
+      cheapestPetiteValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
   
-  //get cheapest adult virgin
-  var cheapestVirgins = pagination_(Ai.getAllAxies, {offset: 0, sale: "true", sorting: "lowest_price", stage: 4}, "axies", "totalAxies", 12, virginOnly);
-  cheapestVirgins = cheapestVirgins.filter(clearEmptyVals);
-  Logger.log(cheapestVirgins);
-  var cheapestVirginValue = (cheapestVirgins[0].auction.buyNowPrice / div);
-  
-  //Get cheapest petite
-  var cheapestPetiteValue = (Ai.getAllAxies({offset: 0, sale: "true", sorting: "lowest_price", stage: 3}).axies[0].auction.buyNowPrice / div);
-  
-  //Find cheapest of both
-  var cheapest = cheapestVirginValue > cheapestPetiteValue ? cheapestPetiteValue : cheapestVirginValue;
-  return Number(cheapest).toFixed(4);
-  
+  return Number(cheapestPetiteValue).toFixed(4);
 }
 
+
+/** 
+ * Get  virgin axie floor price.
+ * @customfunction
+ */
+function axiePriceVirginFloor() {
+  
+  function virginOnly(a) {//switch to arrow function with new google engine. one below to. //rmorv
+    if(a.breedCount === 0) return a;
+  }
+  
+  function clearEmptyVals(n) { return n !== "" }; 
+  
+  var virgins = pagination_(Ai.getAllAxies, {offset: 0, sale: "true", sorting: "lowest_price", stage: 4}, "axies", "totalAxies", 12, virginOnly),
+      cheapestVirgin = virgins.filter(clearEmptyVals)[0], //get cheapest adult virgin
+      cheapestVirginValue = (cheapestVirgin.auction.buyNowPrice / div);
+ 
+  return Number(cheapestVirginValue).toFixed(4); 
+}
+
+
+/** 
+ * Get floor price for special axies
+ * works only for 1part_mystic, title(origin, meo%20corp), region(japan)
+ * 
+ * @param {string} propValue Value of the property to search by. e.g:
+ *                           mystic, origin, meo%20corp, japan.
+ * @param {string} propertyN Name of the property to search by. Leave empty for mystic and origin. e.g:
+ *                           title, region.
+ * @customfunction
+ */
+function axiePriceSpecial(propValue, propertyN) {
+  
+  var stage = 4,
+      p = {offset: 0, sale: "true", sorting: "lowest_price", stage: stage};
+  
+  //default query.
+  if(!propValue || propValue === "origin") p.title ="origin";
+  else if(propValue === "mystic") p.num_mystic = 1;
+  else p[propertyN] = propValue;
+   
+  
+  var cheapestAxieValue = (Ai.getAllAxies(p).axies[0].auction.buyNowPrice / div);
+  
+  return Number(cheapestAxieValue).toFixed(4);
+}
+
+
+
+
+
 /////////////////////////////////////Battles/////////////////////////////////////
+
 /**
  * Check charm
  * Allows to get data about charm (Bean's Blessing) for given ETH Address.
@@ -329,25 +386,30 @@ function axieBtlCharm(ethAddress) {
 
 
 /**
- * Activity Points.
+ * Activity Points:
  * Allows to get data about activity points for given Axies. Can request multiple ID's at once.
  *
  * @param {number} axies This parametter is a restParam, just add more parametters separated by comas holding the different axie ids.
  * @customfunction
  */
 function axieBtlActivityPoints(axies) { //can also use array of ids when used in google-app-script.
-  var arr = [],
-      result = [];
+  
+  var arr = new Array(),
+      result = new Array();
   
   restParam_(1, arguments, arr);
   Logger.log(arr);
+  
+  
   var response = Ai.getActivityPoints(arr);
   
   response.forEach(function(axie) {
     result.push([axie.axieId, axie.activityPoint]);
   });
-//  if(showHead) axies.unshift();
+  
+  
   addHeader_(showHead, result, ["Axie id", "Activity points"]);
+  
   return symmetric2DArray_(result);
 };
 
@@ -361,8 +423,9 @@ function axieBtlActivityPoints(axies) { //can also use array of ids when used in
  * @customfunction
  */
 function axieBtlLeaderboard(ethAddress) {
+  
   var response = Ai.getLboard(ethAddress),
-      result = [];
+      result = new Array();
   
   response.forEach(function(user){
     result.push(lboardTemp_(user));
@@ -385,22 +448,29 @@ function axieBtlLeaderboard(ethAddress) {
  * @customfunction
  */
 function axieGetMyTeams(ethAddress, count, offset, no_limit) {
-  var p = {},
-      result = [];
+
+  var p = new Object(),
+      result = new Array();
   
   //Build parametter object
   if(ethAddress) p.address = ethAddress;
+  
   p.count = count ? count: 1000; //offset default to zero.
+  
   p.offset = offset ? offset: 0; //offset default to zero.
+  
   if(no_limit) p.no_limit = no_limit;
     
   var response = Ai.getTeams(p);
+  
   
   response.teams.forEach(function(team) {
     result.push(teamTemp_(team));
   });
   
+  
   addHeader_(showHead, result, teamHeadTemp_());
+  
   return symmetric2DArray_(result);
 };
 
@@ -414,19 +484,24 @@ function axieGetMyTeams(ethAddress, count, offset, no_limit) {
  * @customfunction
  */
 function axieGetTeam(teamId) {
+  
     var result = [],
         response = Ai.getTeam(teamId);
   
-//  Logger.log(response);
+//  Logger.log(response); //rmorv
   result.push(teamTemp_(response));
-  
+    
   addHeader_(showHead, result, teamHeadTemp_());
+  
   return result;
 };
 
 
 
+
+
 /////////////////////////////////////Lunancia/////////////////////////////////////
+
 /**
  * Marketplace
  * Allows to get data about items on land marketplace.
@@ -440,8 +515,10 @@ function axieGetTeam(teamId) {
  * @customfunction
  */
 function axieLandMarket(offset, count, sorting, search, type, rarity) {
+  
   var p = {},
       result = [];
+  
   
   p.offset = offset ? offset: 0; //offset default to zero.
   if(count) p.count = count;
@@ -452,10 +529,10 @@ function axieLandMarket(offset, count, sorting, search, type, rarity) {
   
   Logger.log(p)
   var response = Ai.getMarket(p);
-//  Logger.log(response);
+//  Logger.log(response); //rmorv
   
   response.results.forEach(function(e) {
-//    Logger.log(e);
+//    Logger.log(e); //rmorv
     
     if(e.assetType === "land") {
       result.push(landTemp_(e));
@@ -484,8 +561,10 @@ function axieLandMarket(offset, count, sorting, search, type, rarity) {
  * @customfunction
  */
 function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
+  
   var p = {},
       result = [];
+  
   
   p.offset = offset ? offset: 0; //offset default to zero.
   if(count) p.count = count;
@@ -494,7 +573,7 @@ function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
   if(type) p.type = type;
   if(rarity) p.rarity = rarity;
   
-//  Logger.log(p)
+//  Logger.log(p) //rmorv
   var response = Ai.getMarketBundles(p);
 //  Logger.log(response);
   
@@ -503,13 +582,15 @@ function axieLandMarketBundles(offset, count, sorting, search, type, rarity) {
   response.results.forEach(function(bundle) {
 //    Logger.log(bun);
     result = bundleTemp_(bundle, result);
-    Logger.log(result)
+//    Logger.log(result) //rmorv
   });
   
   Logger.log(response.total);
   
   return symmetric2DArray_(result);  
 };
+
+
 
 
 
@@ -542,24 +623,27 @@ function axiePrintFreakCalcUrl(sireId, matronId) {
 function axieCheckBreedable(axie1,axie2, ethAddress, lovePTotal) {
   
   if(typeof(axie1) === "object") {
+    
     var ax1 = axie1,
         ax2 = axie2;
+    
   } else if(typeof(axie1) === "number") {
+    
     var ax1 = Ai.getSingleAxie(axie1),
         ax2 = Ai.getSingleAxie(axie2);
   };
+  
   if(ax.stage <4) return false;
+  
   
   var ax1BC = ax1.breedCount,
       ax2BC = ax2.breedCount;
   
-  if(typeof(lovePTotal) === "number") {
-    var lpt = lovePTotal;
-  } else if(!lovePTotal) {
-    var lpt = Ai.getSmallLoveP(ethAddress) 
-  }
+  if(typeof(lovePTotal) === "number")  var lpt = lovePTotal;
+  else if(!lovePTotal) var lpt = Ai.getSmallLoveP(ethAddress);
+
 //  Logger.log(bree)
-//  Logger.log(axie);
+//  Logger.log(axie); //rmorv
   var lpCost = (axieCountLPCost(ax1BC) + axieCountLPCost(ax2BC));
   
   if(lpCost <= lpt) return true;
@@ -578,17 +662,13 @@ function axieCheckBreedable(axie1,axie2, ethAddress, lovePTotal) {
  * @customfunction
  */
 function axieCheckBreedableSimple(brdCntAx1, brdCntAx2, lovePTotal) {
-  if (typeof(brdCntAx1) !== "number" || typeof(brdCntAx2) !== "number") {
-    return "";
-  }
   
+  if (typeof(brdCntAx1) !== "number" || typeof(brdCntAx2) !== "number") return "";
+ 
   var lpCost = axieCountLPTC(brdCntAx1, brdCntAx2);
   
-  if(lpCost <= lovePTotal) {
-    return true;
-  } else {
-    return false;
-  }
+  if(lpCost <= lovePTotal) return true;
+  else return false;
 };
 
 
@@ -602,11 +682,13 @@ function axieCheckBreedableSimple(brdCntAx1, brdCntAx2, lovePTotal) {
  * @customfunction
  */
 function axieCountLPTC(brdCntAx1, brdCntAx2) {
-  if (typeof(brdCntAx1) !== "number" || typeof(brdCntAx2) !== "number") {
-    return "";
-  };
-  var lpCost = (axieCountLPCost(brdCntAx1) + axieCountLPCost(brdCntAx2));
-  return lpCost;
+  
+  if(validateN_(brdCntAx1) && validateN_(brdCntAx2)) {
+    
+    var lpCost = (axieCountLPCost(brdCntAx1) + axieCountLPCost(brdCntAx2));
+    return lpCost;
+  } 
+  else return "";
 };
 
 
@@ -617,19 +699,27 @@ function axieCountLPTC(brdCntAx1, brdCntAx2) {
  * @customfunction
  */
 function axieCountLPCost(breedcount) {
+  
   var pc = 0; //potion cost
+  
   if(breedcount < 1) {
     pc += 100;
+    
   } else if(breedcount < 2) {
     pc += 200;
+    
   } else if(breedcount < 3) {
     pc += 300;
+    
   } else if(breedcount < 4) {
     pc += 500;
+    
   } else if(breedcount < 5) {
     pc += 800;
+    
   } else if(breedcount < 6) {
     pc += 1300;
+    
   } else if(breedcount < 7) {
     pc += 2100;
   };

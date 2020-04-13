@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css?family=Indie+Flower|Nanum+Pen+Script|Shadows+Into+Light+Two&display=swap" rel="stylesheet">
     
     <style> 
+    
       body{
         padding: 10px;
         background-color: #263547;
@@ -14,6 +15,7 @@
         color: #fbbc04;
         font-size: 18px;
       }
+    
       label {
         font-size: 20px;
       }
@@ -24,41 +26,51 @@
         color: #6cc148;
       }
       
-    </style>
-    
-    
-    
+    </style>  
   </head>
+  
+  
+  
   <body>
-    
-    
-    
-   <h2 id="intro"> 
+  
+  
+    <h2 id="intro"> 
       Details
     </h2>
+    
     <ul id="details">
         <li>Enter Part of the name or full axie name.</li>
         <li>Only search in a defined Eth address. <br> Will use the default address if none is provided on the Inventory sheet</li>
     </ul>
+    
     <hr>
     
+    
     <form onsubmit="handleFormSubmit(this)">
+    
+      
       <div class="inputBox">
         <label for="name">Name</label>
+        
           <input type="text" id="name" name="name" placeholder="e.g: 3/4 dps">
       </div>
 
-      
       <hr>
+      
+      
       <div class="windowControl">
+      
         <input type="submit" value="Submit">
         <input type="button" id="cancel" value="Cancel" onclick="google.script.host.close()"><br>
       </div>
     </form>
-    
   </body>
+  
+  
   <script>
+  
     function handleFormSubmit(formObject) {
+      
       function onSucces(e) {
         google.script.host.close(); 
       }
@@ -66,18 +78,6 @@
       var runner = google.script.run.withSuccessHandler(onSucces)
         .searchAxiesByName(formObject);
       
-    }  
-
-//    function setAttributes(element, attributes) {
-//      for(var key in attributes) {
-//        element.setAttribute(key, attributes[key]);
-//      }
-//    }// Source: https://stackoverflow.com/a/12274782/9588601
-//    
-//    function removeInputField(selectedField) {
-//      var box = selectedField.closest('div');
-//      box.remove();
-//    }
-//    
+    }
   </script>
 </html>
